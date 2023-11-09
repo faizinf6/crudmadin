@@ -1,6 +1,10 @@
 // routes/kelasRoutes.js
 import express from 'express';
-import { getAllKelas,createKelas } from '../controllers/kelasController.js';
+import {   createKelas,
+    getAllKelas,
+    getKelasById,
+    updateKelas,
+    deleteKelas } from '../controllers/kelasController.js';
 
 const router = express.Router();
 
