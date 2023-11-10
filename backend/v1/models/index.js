@@ -71,7 +71,7 @@ sequelize.sync({ force: true }).then(() => {
 });
 
 async () => {
-  await sequelize.sync({force:true}).then(() => {
+  await sequelize.sync().then(() => {
     console.log('Database & tables created!');
 
 

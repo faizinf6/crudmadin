@@ -79,7 +79,11 @@ export const getMuridInSpecificKelas = async (req, res) => {
 
     if(kelas) {
       const murids = await Murid.findAll({
-        where: { KelasId: kelas.id }
+        where: { KelasId: kelas.id },
+        include:[{
+          model: Kelas,
+          as: 'kelas'
+        }]
       });
       res.status(200).json(murids);
     } else {
