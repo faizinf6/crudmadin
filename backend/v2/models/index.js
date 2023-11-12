@@ -74,6 +74,32 @@ Mapel.init({
   }
 }, { sequelize, modelName: 'Mapel', freezeTableName: true });
 
+class NilaiMurid extends Model {}
+NilaiMurid.init({
+  id_nilai: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  id_murid: {
+    type: DataTypes.INTEGER.UNSIGNED,
+    allowNull: false
+  },
+  id_kelas: {
+    type: DataTypes.INTEGER.UNSIGNED,
+    allowNull: false
+  },
+  id_mapel: {
+    type: DataTypes.INTEGER.UNSIGNED,
+    allowNull: false
+  },
+  nilai: {
+    type: DataTypes.INTEGER.UNSIGNED,
+    allowNull: false
+  }
+}, { sequelize, modelName: 'NilaiMurid', freezeTableName: true });
+
+
 // Mendefinisikan hubungan antar model
 Murid.belongsTo(Kelas, { foreignKey: 'id_kelas' });
 Kelas.hasMany(Murid, { foreignKey: 'id_kelas' });
@@ -84,6 +110,9 @@ Angkatan.hasMany(Kelas, { foreignKey: 'id_angkatan' });
 Angkatan.hasMany(Mapel, { foreignKey: 'id_angkatan' });
 Mapel.belongsTo(Angkatan, { foreignKey: 'id_angkatan' });
 
+NilaiMurid.belongsTo(Murid, { foreignKey: 'id_murid' });
+NilaiMurid.belongsTo(Kelas, { foreignKey: 'id_kelas' });
+NilaiMurid.belongsTo(Mapel, { foreignKey: 'id_mapel' });
 // Synchronize semua model dengan database
 async function syncModels() {
   try {
@@ -96,4 +125,4 @@ async function syncModels() {
 
 syncModels();
 
-export { Murid, Kelas, Angkatan, Mapel };
+export { Murid, Kelas, Angkatan, Mapel,NilaiMurid };

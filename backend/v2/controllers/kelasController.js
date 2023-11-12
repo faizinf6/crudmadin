@@ -1,3 +1,4 @@
+import { Model } from 'sequelize';
 import { Kelas,Mapel,Murid } from '../models/index.js'; // Ganti dengan lokasi file model Anda
 
 export class KelasController {
@@ -15,7 +16,12 @@ export class KelasController {
     // Read
     static async getAllKelas(req, res) {
         try {
-            const kelasList = await Kelas.findAll();
+            const kelasList = await Kelas.findAll(
+                { include: [{
+                    model: Murid,
+                    as: 'murid'
+                  }]}
+            );
             res.status(200).json(kelasList);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -96,17 +102,22 @@ export class KelasController {
     static async getAllNamaMurid(req, res) {
       try {
           const { id_kelas } = req.params;
-          const murids = await Murid.findAll({
-              where: { id_kelas: id_kelas },
-              attributes: ['nama_murid'] // Hanya mengambil atribut nama_murid
+          const kelas = await Kelas.findAll({
+              where: { id_kelas: id_kelas }
+              ,        include:[{
+                model: Murid,
+                as: 'Murids'
+              }] // Hanya mengambil atribut nama_murid
           });
 
-          if (murids && murids.length > 0) {
-              const namaMurids = murids.map(m => m.nama_murid);
-              res.status(200).json(namaMurids);
-          } else {
-              res.status(404).json({ message: 'Tidak ada murid ditemukan di kelas ini' });
-          }
+        //   if (murids && murids.length > 0) {
+        //       const namaMurids = murids.map(m => m.nama_murid);
+        //       res.status(200).json(namaMurids);
+        //   } else {
+        //       res.status(404).json({ message: 'Tidak ada murid ditemukan di kelas ini' });
+        //   }
+
+        res.status(200).json(kelas)
       } catch (error) {
           res.status(500).json({ error: error.message });
       }

@@ -103,7 +103,7 @@ export class MuridController {
                 `nama_murid`
             ]
         });
-        console.log(murid);
+  
 
         // Dapatkan id_angkatan yang berkaitan dengan id_kelas
         const kelas = await Kelas.findByPk(murid.id_kelas, {
