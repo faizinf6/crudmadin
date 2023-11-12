@@ -1,4 +1,4 @@
-import { NilaiMurid,Murid,Mapel,Kelas } from '../models/index.js';
+import { NilaiMurid,Murid,Mapel,Kelas, Angkatan } from '../models/index.js';
 
 
 export class NilaiMuridController {
@@ -94,6 +94,64 @@ export class NilaiMuridController {
             res.status(500).json({ error: error.message });
         }
     }
+
+    static async getAllNilai(req, res) {
+        try {
+            const kelasList = await NilaiMurid.findAll(
+                { include: [{
+                    model: Mapel,
+                    as: 'Mapel'
+                  },{
+                    model: Murid,
+                    as: 'Murid'
+                  }]}
+            );
+            res.status(200).json(kelasList);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    
+    static async getAllNilaiBySpecificIdMapel(req, res) {
+        try {
+            const { id_kelas, id_mapel } = req.query;
+            res.status(200).json(req.query);
+
+            // // Ambil murid-murid dari kelas yang ditentukan
+            // const muridList = await Kelas.findAll({
+            //     where: { id_kelas: id_kelas },
+            //     include: [{
+            //         model: NilaiMurid,
+            //         as: 'NilaiMurid',
+            //         required: false, // Menggunakan left join
+            //         where: { id_mapel: id_mapel },
+            //         include: [{
+            //             model: Mapel,
+            //             as: 'Mapel',
+            //             attributes: ['nama_mapel']
+            //         }]
+            //     }]
+            // });
+
+            // // Format data untuk response
+            // const result = muridList.map(murid => {
+            //     const nilaiMurid = murid.NilaiMurid.map(nilai => {
+            //         return {
+            //             nama_murid: murid.nama_murid,
+            //             nilai: nilai.nilai,
+            //             nama_mapel: nilai.Mapel.nama_mapel
+            //         };
+            //     });
+            //     return nilaiMurid.length > 0 ? nilaiMurid[0] : { nama_murid: murid.nama_murid, nilai: null, nama_mapel: null };
+            // });
+
+            // res.status(200).json(result);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+
     // ... tambahkan fungsi lain jika diperlukan
 }
 

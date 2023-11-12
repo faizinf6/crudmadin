@@ -17,6 +17,7 @@ const AbsensiList=()=>{
   
     const handleEditClick = (murid) => {
       setEditData(murid);
+      console.log(murid);
       setShowModal(true);
     };
   
@@ -48,7 +49,43 @@ const AbsensiList=()=>{
       { name: "Pilih Kelas....", value: 1000 },
       { name: "4 Ibt Pa Pagi", value: 1000,gender: "L" },
       { name: "5 Ibt Pa Pagi", value: 2000,gender: "L" },
-      { name: "5 Ibt Pi Pagi", value: 2000,gender: "P" },
+      { name: "6 Ibt Pa Pagi", value: 3000 ,gender: "L" },
+      { name: "1 Tsn Pa Pagi", value: 4000,gender: "L" },
+      { name: "2 Tsn Pa Pagi", value: 5000,gender: "L" },
+      { name: "3 Tsn Pa Pagi", value: 6000,gender: "L" },
+      { name: "1 Aly Pa Pagi", value: 7000,gender: "L" },
+      { name: "2 Aly Pagi", value: 8000,gender: "L" },
+      
+      { name: "4 Ibt Pi Pagi", value: 1500,gender: "P" },
+      { name: "5 Ibt Pi Pagi", value: 2500,gender: "P" },
+      { name: "6 Ibt Pi Pagi", value: 3500 ,gender: "P" },
+      { name: "1 Tsn Pi Pagi", value: 4500,gender: "P" },
+      { name: "2 Tsn Pi Pagi", value: 5500,gender: "P" },
+      { name: "3 Tsn Pi Pagi", value: 6500,gender: "P" },
+      { name: "1 Aly Pi Pagi", value: 7500,gender: "P" },
+      
+      { name: "4 Ibt A Pa Siang", value:1101 ,gender: "L" },
+      { name: "4 Ibt B Pa Siang", value:1102 ,gender: "L" },
+      { name: "5 Ibt A Pa Siang", value:2101 ,gender: "L" },
+      { name: "5 Ibt B Pa Siang", value:2102 ,gender: "L" },
+      { name: "6 Ibt A Pa Siang", value:3101 ,gender: "L" },
+      { name: "6 Ibt B Pa Siang", value:3102 ,gender: "L" },
+      { name: "1 Tsn Pa Siang", value:4100 ,gender: "L" },
+      { name: "2 Tsn Pa Siang", value:5100 ,gender: "L" },
+      { name: "3 Tsn Pa Siang", value:6100 ,gender: "L" },
+
+      { name: "4 Ibt A Pi Siang", value:1601 ,gender: "P" },
+      { name: "4 Ibt B Pi Siang", value:1602 ,gender: "P" },
+      { name: "5 Ibt A Pi Siang", value:2601 ,gender: "P" },
+      { name: "5 Ibt B Pi Siang", value:2602 ,gender: "P" },
+      { name: "6 Ibt A Pi Siang", value:3601 ,gender: "P" },
+      { name: "6 Ibt B Pi Siang", value:3602 ,gender: "P" },
+      { name: "1 Tsn Pi Siang", value:4600 ,gender: "P" },
+      { name: "2 Tsn Pi Siang", value:5600 ,gender: "P" },
+      { name: "3 Tsn Pi Siang", value:6600 ,gender: "P" },
+
+
+      
       // Tambahkan lebih banyak objek sesuai kebutuhan
     ];
     const filteredStudents = students.filter(student => student.gender === selectedGender);
@@ -126,7 +163,11 @@ const AbsensiList=()=>{
         <div className="mt-3">
           {/* <strong>Response:</strong>
           <pre>{responseText}</pre> */}
-          <Table striped bordered hover className="mt-4">
+
+<Row className="p-2">
+        <Col md={{ span: 5, offset: 5}}> {/* Atur span dan offset sesuai kebutuhan */}
+       
+          <Table striped bordered hover >
         <thead>
           <tr>
             <th>NIS</th>
@@ -144,14 +185,19 @@ const AbsensiList=()=>{
                   <td>{murid.nama_murid}</td>
                   <td>{murid.isBoyong ? 'Ya' : 'Tidak'}</td>
                   <td>{kelas.nama_kelas}</td>
-                  <Button variant="primary" onClick={() => handleEditClick(murid)}>
+                  <td>
+                  <Button variant="warning" onClick={() => handleEditClick(murid)}>
                     Edit
                   </Button>
+                  </td>
                 </tr>
               ))
             )}
         </tbody>
       </Table>
+        </Col>
+      </Row>
+          
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>

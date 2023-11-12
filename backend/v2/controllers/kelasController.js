@@ -1,5 +1,5 @@
 import { Model } from 'sequelize';
-import { Kelas,Mapel,Murid } from '../models/index.js'; // Ganti dengan lokasi file model Anda
+import { Angkatan, Kelas,Mapel,Murid } from '../models/index.js'; // Ganti dengan lokasi file model Anda
 
 export class KelasController {
     // Create
@@ -19,7 +19,7 @@ export class KelasController {
             const kelasList = await Kelas.findAll(
                 { include: [{
                     model: Murid,
-                    as: 'murid'
+                    as: 'Murids'
                   }]}
             );
             res.status(200).json(kelasList);
@@ -141,20 +141,28 @@ export class KelasController {
         // Gunakan id_angkatan untuk mendapatkan mapel yang terkait
         const mapels = await Mapel.findAll({
             where: { id_angkatan: kelas.id_angkatan },
-            attributes: ['nama_mapel']
+             include: [{
+                model: Angkatan,
+                as: 'Angkatan'
+              }]
         });
+            res.status(200).json(mapels );
+
+
         // const namaKelas = await Kelas.findAll({
         //     where: { id_kelas: kelas.id_angkatan },
         //     attributes: ['nama_mapel']
         // });
 
-        if (mapels && mapels.length > 0) {
-            const namaMapels = mapels.map(m => m.nama_mapel);
-            const namaKelas = kelas.nama_kelas;
-            res.status(200).json(namaMapels );
-        } else {
-            res.status(404).json({ message: 'Tidak ada mata pelajaran ditemukan untuk kelas ini' });
-        }
+        // if (mapels && mapels.length > 0) {
+        //     const namaMapels = mapels.map(m => m.nama_mapel);
+        //     const namaKelas = kelas.nama_kelas;
+        //     res.status(200).json(namaMapels );
+        // } else {
+        //     res.status(404).json({ message: 'Tidak ada mata pelajaran ditemukan untuk kelas ini' });
+        // }
+
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

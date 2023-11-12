@@ -124,5 +124,5 @@ async function syncModels() {
 }
 
 syncModels();
-
+//{force: true}
 export { Murid, Kelas, Angkatan, Mapel,NilaiMurid };

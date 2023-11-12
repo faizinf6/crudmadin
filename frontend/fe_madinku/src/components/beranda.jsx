@@ -45,7 +45,7 @@ const BerandaPages = ()=>{
       const beforeStyle = {
         content: '""',
         float: 'left',
-        paddingTop: '100%', // This creates the square aspect ratio
+        paddingTop: '30%', // This creates the square aspect ratio
       };
     
       const afterStyle = {
@@ -64,9 +64,9 @@ const BerandaPages = ()=>{
           Absensi
           <span style={afterStyle}></span>
         </Link>
-        <Link to="/edit-data" style={{ ...menuItemStyle, ...editDataStyle }}>
+        <Link to="/rekap" style={{ ...menuItemStyle, ...editDataStyle }}>
           <span style={beforeStyle}></span>
-          Edit Data
+          Rekap Nilai
           <span style={afterStyle}></span>
         </Link>
         <Link to="/laporan" style={{ ...menuItemStyle, ...laporanStyle }}>
