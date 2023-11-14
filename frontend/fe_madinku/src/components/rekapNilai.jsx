@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Form, Button, Row, Col, Table, Modal } from "react-bootstrap";
-import DataTable from "./DataTable";
+import { Form, Button, Row, Col, Table, Modal,Toast, ToastContainer  } from "react-bootstrap";
 
 const RekapNilai = () => {
   const [mapelData, setMapelData] = useState([]);
   const [dataMuridDanNilainya, setdataMuridDanNilainya] = useState([]);
-  const [selectedNilaiMapel, setselectedNilaiMapel] = useState([]);
+  const [isiToast,setIsiToast] = useState("");
   const [selectedKelas, setSelectedKelas] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
 
+  const [values, setValues] = useState(dataMuridDanNilainya);
+  const [initialValues, setInitialValues] = useState({});
+  const [show, setShow] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedMapel, setSelectedMapel] = useState({});
   const dataKelas = [
@@ -129,9 +131,48 @@ const RekapNilai = () => {
 
   };
 
+
+  useEffect(() => {
+    setValues(dataMuridDanNilainya);
+    const initialVals = dataMuridDanNilainya.reduce((acc, curr) => {
+        acc[curr.id_murid] = curr.nilai;
+        return acc;
+    }, {});
+    setInitialValues(initialVals);
+}, [dataMuridDanNilainya]); // Dependensi useEffect adalah 'data'
+
+
   const filteredStudents = dataKelas.filter(
     (genderKelas) => genderKelas.gender === selectedGender
   );
+
+  const handleChange = (id, newValue) => {
+    const newValues = values.map(murid => 
+        murid.id_murid === id ? { ...murid, nilai: newValue } : murid
+    );
+    setValues(newValues);
+};
+const isValueChanged = (id) => {
+    return initialValues[id] !== values.find(m => m.id_murid === id).nilai;
+};
+
+const handleShow = async (id) => {
+  const murid = values.find(m => m.id_murid === id);
+  try {
+      const responseDataMurid = await axios.patch(
+          `http://localhost:5000/nilai/update?id=${murid.id_murid}&id_kelas=${murid.id_kelas}&id_mapel=${murid.id_mapel}&nilai=${murid.nilai}`);
+  
+          setIsiToast(`Nilai Terbaru: ${responseDataMurid.data.nilai},\n\n\n Nama: ${murid.nama_murid} `);
+          
+          // console.log(responseDataMurid.data.nilai);
+  } catch (error) {
+      
+  }
+
+  setShow(true)
+};
+
+
 
   const columnProps = {
     sm: 12,
@@ -252,14 +293,56 @@ const RekapNilai = () => {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
+          <Table striped bordered hover>
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Nilai</th>
+                    <th>Tampilkan</th>
+                </tr>
+            </thead>
+            <tbody>
+                {values.map(({ id_murid, nama_murid, nilai }) => (
+                    <tr key={id_murid}>
+                        <td>{nama_murid}</td>
+                        <td>
+                            <Form.Control
+                                type="text"
+                                value={nilai}
+                                onChange={(e) => handleChange(id_murid, e.target.value)}
+                            />
+                        </td>
+                        <td>
+                            <Button variant="primary" onClick={() => handleShow(id_murid)} disabled={!isValueChanged(id_murid)}>
+                                Simpan
+                            </Button>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </Table>
 
-
-          <DataTable data={dataMuridDanNilainya} />
 
 
           
           </Modal.Body>
           <Modal.Footer>
+            <ToastContainer className="p-3"
+          position= 'top-center'>
+          <Toast onClose={() => setShow(false)} show={show} delay={3000} autohide bg="success">
+          <Toast.Header>
+            <img
+              src="holder.js/20x20?text=%20"
+              className="rounded me-2"
+              alt=""
+            />
+            <strong className="me-auto">Berhasil Disimpan!</strong>
+            {/* <small>11 mins ago</small> */}
+          </Toast.Header>
+          <Toast.Body> {isiToast} </Toast.Body>
+        </Toast>
+
+        </ToastContainer>
             <Button variant="secondary" onClick={handleSave}>
               Tutup & Refresh
             </Button>
