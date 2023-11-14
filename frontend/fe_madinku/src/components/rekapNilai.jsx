@@ -1,54 +1,17 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Form, Button, Row, Col, Table, Modal } from "react-bootstrap";
+import DataTable from "./DataTable";
 
 const RekapNilai = () => {
   const [mapelData, setMapelData] = useState([]);
-  const [muridData, setMuridData] = useState([]);
+  const [dataMuridDanNilainya, setdataMuridDanNilainya] = useState([]);
+  const [selectedNilaiMapel, setselectedNilaiMapel] = useState([]);
   const [selectedKelas, setSelectedKelas] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
 
   const [showModal, setShowModal] = useState(false);
-  const [editDataNilai, setEditDataNilai] = useState({});
-
-  const handleEditClick = (mapel) => {
-    setEditDataNilai(mapel);
-    // masuk (mapel.nama_mapel);
-
-    // console.log(mapel);
-    setShowModal(true);
-  };
-
-  const handleSave = async () => {
-    // Kirim perubahan ke server
-    const url = `http://localhost:5000/murid/${editDataNilai.id_murid}`; // Ganti dengan endpoint yang sesuai
-    try {
-      const response = await axios.patch(url, {
-        nama_murid: editDataNilai.nama_murid,
-        isBoyong: editDataNilai.isBoyong,
-        id_kelas: editDataNilai.id_kelas,
-      });
-      const updatedData = response.data;
-      setMapelData(
-        mapelData.map((kelas) => {
-          if (kelas.id_kelas === updatedData.id_kelas) {
-            return {
-              ...kelas,
-              Murids: kelas.Murids.map((murid) =>
-                murid.id_murid === updatedData.id_murid ? updatedData : murid
-              ),
-            };
-          } else {
-            return kelas;
-          }
-        })
-      );
-      setShowModal(false); // Tutup modal setelah selesai
-    } catch (error) {
-      console.error("Error saat mengirim data", error);
-    }
-  };
-
+  const [selectedMapel, setSelectedMapel] = useState({});
   const dataKelas = [
     { name: "Pilih Kelas....", value: 1000 },
     { name: "4 Ibt Pa Pagi", value: 1000, gender: "L" },
@@ -87,11 +50,87 @@ const RekapNilai = () => {
     { name: "1 Tsn Pi Siang", value: 4600, gender: "P" },
     { name: "2 Tsn Pi Siang", value: 5600, gender: "P" },
     { name: "3 Tsn Pi Siang", value: 6600, gender: "P" },
-
-    // Tambahkan lebih banyak objek sesuai kebutuhan
   ];
+
+
+
+  const filteredData = dataMuridDanNilainya.filter(item => item.id_mapel === selectedMapel.id_mapel);
+
+
+  const [editedNilai, setEditedNilai] = useState(dataMuridDanNilainya.reduce((acc, item) => {
+    if (item.id_mapel === selectedMapel.id_mapel) {
+      acc[item.id_murid] = item.nilai !== undefined ? item.nilai : 0;
+    }
+    // console.log(acc);
+    return acc;
+  }, {}));
+
+
+  
+  const handleEditClick = (mapel) => {
+    setSelectedMapel(mapel);
+    // masuk (mapel.nama_mapel);
+
+    try {
+      // const kelasValue = dataKelas.find(
+      //   (student) => student.name === selectedKelas
+      // )?.value;
+
+      // const responseDataMurid = await axios.get(
+      //   `http://localhost:5000/nilai/rekap?id_kelas=${kelasValue}&id_mapel=${selectedMapel.id_mapel}`
+      // );
+
+      // // Set the response text to state
+      // // setResponseText(JSON.stringify(response.data, null, 2));
+      // setdataMuridDanNilainya(responseDataMurid.data);
+    } catch (error) {
+      // Set error message to state
+      console.log("There was an error: " + error.message);
+    }
+
+    setShowModal(true);
+  };
+
+  const fetchData = async () => {
+    if (selectedMapel.id_mapel) {
+      try {
+        const kelasValue = dataKelas.find(
+          (kelas) => kelas.name === selectedKelas
+        )?.value;
+
+        const responseDataMurid = await axios.get(
+          `http://localhost:5000/nilai/rekap?id_kelas=${kelasValue}&id_mapel=${selectedMapel.id_mapel}`
+        );
+        setdataMuridDanNilainya(responseDataMurid.data);
+        // console.log(responseDataMurid.data);
+        // console.log(selectedMapel.id_mapel);
+
+      } catch (error) {
+        console.log("There was an error: " + error.message);
+      }
+    }
+  };
+
+  useEffect(() => {
+
+    fetchData();
+    // console.log(dataMuridDanNilainya)
+   
+
+   
+  }, [selectedMapel]);
+
+
+  const handleSave = async () => {
+    // Kirim perubahan ke server
+    fetchData();
+    setShowModal(false)
+
+
+  };
+
   const filteredStudents = dataKelas.filter(
-    (student) => student.gender === selectedGender
+    (genderKelas) => genderKelas.gender === selectedGender
   );
 
   const columnProps = {
@@ -100,27 +139,19 @@ const RekapNilai = () => {
     lg: 3,
     xl: 3,
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
       const kelasValue = dataKelas.find(
-        (student) => student.name === selectedKelas
+        (namaKelas) => namaKelas.name === selectedKelas
       )?.value;
 
       const response = await axios.get(
         `http://localhost:5000/kelas/mapel/all/${kelasValue}`
       );
-      
-      const responseDataMurid = await axios.get(
-        `http://localhost:5000/kelas/murid/all/${kelasValue}`
-      );
-
       // Set the response text to state
       // setResponseText(JSON.stringify(response.data, null, 2));
       setMapelData(response.data);
-      setMuridData(responseDataMurid.data);
-      
-  
+
     } catch (error) {
       // Set error message to state
       console.log("There was an error: " + error.message);
@@ -183,8 +214,6 @@ const RekapNilai = () => {
 
         <Row className="p-2">
           <Col md={{ span: 5, offset: 5 }}>
-            {" "}
-            {/* Atur span dan offset sesuai kebutuhan */}
             <Table striped bordered hover>
               <thead>
                 <tr>
@@ -217,45 +246,22 @@ const RekapNilai = () => {
 
         <Modal show={showModal} onHide={() => setShowModal(false)} fullscreen>
           <Modal.Header closeButton>
-            <Modal.Title>Nilai {editDataNilai.nama_mapel} id Mapel: {editDataNilai.id_mapel}</Modal.Title>
+            <Modal.Title>
+              Nilai {selectedMapel.nama_mapel} id Mapel:{" "}
+              {selectedMapel.id_mapel}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>NIS</th>
-                <th>Nama</th>
-                <th>Nilai</th>
-                <th>Simpan?</th>
-              </tr>
-            </thead>
-            <tbody>
-              {muridData.map((kelas) => kelas.Murids.map((murid)=>(
-                <tr key={murid.id_murid}>
-                  <td>{murid.id_murid}</td>
-                  <td>{murid.nama_murid}</td>
-                  <td>
-                    <Form.Control type="number" />
-                  </td>
-                  <td>
-                      <Button
-                        variant="warning"
-                        onClick={()=>console.log(editDataNilai)}
-                      >
-                        Simpan
-                      </Button>
-                    </td>
-                </tr>
-              )))}
-            </tbody>
-          </Table>
-        </Modal.Body>
+
+
+          <DataTable data={dataMuridDanNilainya} />
+
+
+          
+          </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowModal(false)}>
-              Batal
-            </Button>
-            <Button variant="primary" onClick={handleSave}>
-              Simpan
+            <Button variant="secondary" onClick={handleSave}>
+              Tutup & Refresh
             </Button>
           </Modal.Footer>
         </Modal>

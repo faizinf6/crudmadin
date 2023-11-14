@@ -8,7 +8,6 @@ router.get('/', MuridController.getAllMurid)  ;
 router.get('/get', MuridController.getAllMurid);
 router.get('/:id', MuridController.getMuridById);
 router.get('/mapel/:id_murid', MuridController.getAllMapelSpecificMurid);
-router.get('/nilai/mapel/:id_murid', NilaiMuridController.getMapelDanNilaiMurid);
 router.get('/nilai/mapel/', NilaiMuridController.getAllNilai);
 router.get('/babi/', MuridController.getAllMurid);
 

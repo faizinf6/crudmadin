@@ -186,9 +186,7 @@ const AbsensiList=()=>{
                   <td>{murid.isBoyong ? 'Ya' : 'Tidak'}</td>
                   <td>{kelas.nama_kelas}</td>
                   <td>
-                  <Button variant="warning" onClick={() => handleEditClick(murid)}>
-                    Edit
-                  </Button>
+                  <Button variant="warning" onClick={() => handleEditClick(murid)}> Edit</Button>
                   </td>
                 </tr>
               ))
