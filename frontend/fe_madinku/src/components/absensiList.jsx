@@ -2,10 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Form, Button, Row, Col,Table,Modal  } from 'react-bootstrap';
 const AbsensiList=()=>{
-    const [dropdown1, setDropdown1] = useState('pg');
-    const [dropdown2, setDropdown2] = useState('pa');
-    const [dropdown3, setDropdown3] = useState('4 ibt');
-    const [dropdown4, setDropdown4] = useState('-');
     const [responseText, setResponseText] = useState('');
     const [muridData, setMuridData] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState('');
@@ -114,7 +110,7 @@ const AbsensiList=()=>{
   };
 
     return(
-        <div>
+        <div className='text-center'>
         <Form className="m-1" >
           <Row>
             <Col {...columnProps}>
@@ -141,11 +137,11 @@ const AbsensiList=()=>{
         </div>
 
 
-                <Form.Label>Pembagian Kelas</Form.Label>
+                {/* <Form.Label>Pembagian Kelas</Form.Label> */}
                 <Form.Control as="select" value={selectedStudent} onChange={(e) => setSelectedStudent(e.target.value)}>
-            <option value="">Pilih...</option>
+            <option value="">Pilih Kelas...</option>
             {filteredStudents.map((student, index) => (
-              <option key={index} value={student.name}>
+              <option key={index} value={student.name} className='text-center' >
                 {student.name}
               </option>
             ))}
@@ -164,8 +160,8 @@ const AbsensiList=()=>{
           {/* <strong>Response:</strong>
           <pre>{responseText}</pre> */}
 
-<Row className="p-2">
-        <Col md={{ span: 5, offset: 5}}> {/* Atur span dan offset sesuai kebutuhan */}
+<Row className="p-2" md={{ span: 5, offset: 5}}>
+        <Col > {/* Atur span dan offset sesuai kebutuhan */}
        
           <Table striped bordered hover >
         <thead>

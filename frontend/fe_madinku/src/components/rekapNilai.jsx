@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Form, Button, Row, Col, Table, Modal,Toast, ToastContainer  } from "react-bootstrap";
+import {
+  Form,
+  Button,
+  Row,
+  Col,
+  Table,
+  Modal,
+  Toast,
+  ToastContainer,
+} from "react-bootstrap";
 
 const RekapNilai = () => {
   const [mapelData, setMapelData] = useState([]);
   const [dataMuridDanNilainya, setdataMuridDanNilainya] = useState([]);
-  const [isiToast,setIsiToast] = useState("");
-  const [selectedKelas, setSelectedKelas] = useState("");
+  const [dataMuridDanKehadiran, setdataMuridDanKehadiran] = useState([]);
+  const [isiToast, setIsiToast] = useState("");
+  const [selectedKelasDropdown, setSelectedKelasDropdown] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
 
-  const [values, setValues] = useState(dataMuridDanNilainya);
+  const [dataMuridContainer, setDataMuridContainer] = useState(dataMuridDanNilainya);
   const [initialValues, setInitialValues] = useState({});
-  const [show, setShow] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [showModalEditMapel, setShowModalEditMapel] = useState(false);
   const [selectedMapel, setSelectedMapel] = useState({});
   const dataKelas = [
     { name: "Pilih Kelas....", value: 1000 },
@@ -53,60 +63,87 @@ const RekapNilai = () => {
     { name: "2 Tsn Pi Siang", value: 5600, gender: "P" },
     { name: "3 Tsn Pi Siang", value: 6600, gender: "P" },
   ];
+  const columnProps = {
+    sm: 12,
+    md: 6,
+    lg: 3,
+    xl: 3,
+  };
+  const [showKehadiranModal, setshowKehadiranModal] = useState(false);
+  const [kehadiran, setKehadiran] = useState({});
+  const [kehadiranAsli, setKehadiranAsli] = useState({});
+  const handleShowKehadiranModal = () => setshowKehadiranModal(true);
+  const handleCloseKehadiranModal = () => setshowKehadiranModal(false);
 
-
-
-  const filteredData = dataMuridDanNilainya.filter(item => item.id_mapel === selectedMapel.id_mapel);
-
-
-  const [editedNilai, setEditedNilai] = useState(dataMuridDanNilainya.reduce((acc, item) => {
-    if (item.id_mapel === selectedMapel.id_mapel) {
-      acc[item.id_murid] = item.nilai !== undefined ? item.nilai : 0;
-    }
-    // console.log(acc);
-    return acc;
-  }, {}));
-
-
-  
-  const handleEditClick = (mapel) => {
-    setSelectedMapel(mapel);
-    // masuk (mapel.nama_mapel);
-
-    try {
-      // const kelasValue = dataKelas.find(
-      //   (student) => student.name === selectedKelas
-      // )?.value;
-
-      // const responseDataMurid = await axios.get(
-      //   `http://localhost:5000/nilai/rekap?id_kelas=${kelasValue}&id_mapel=${selectedMapel.id_mapel}`
-      // );
-
-      // // Set the response text to state
-      // // setResponseText(JSON.stringify(response.data, null, 2));
-      // setdataMuridDanNilainya(responseDataMurid.data);
-    } catch (error) {
-      // Set error message to state
-      console.log("There was an error: " + error.message);
-    }
-
-    setShowModal(true);
+  const handleEditKehadiran = (id_murid, field, value) => {
+    setKehadiran((prev) => ({
+      ...prev,
+      [id_murid]: { ...prev[id_murid], [field]: value },
+    }));
   };
 
-  const fetchData = async () => {
+  const handleSaveDataKehadiran = async (murid) => {
+    // console.log(murid.nama_murid, kehadiran[murid.id_murid] || murid.kehadiran);
+
+
+    const updatedKehadiran = kehadiran[murid.id_murid] || murid.kehadiran;
+  
+    try {
+
+      const response = await axios.patch(`http://localhost:5000/murid/kehadiran/${murid.id_murid}`, {
+        alpha: updatedKehadiran.alpha,
+        izin: updatedKehadiran.izin,
+        sakit: updatedKehadiran.sakit
+      });
+
+      console.log('Response:',  response.data);
+      setIsiToast(`${murid.nama_murid} Alpha: ${response.data.alpha}  Sakit: ${response.data.sakit} Izin: ${response.data.izin}`)
+
+
+    } catch (error) {
+      console.error('Error:', error.response ? error.response.data : error.message);
+    }
+
+    setKehadiranAsli(prev => ({
+      ...prev,
+      [murid.id_murid]: { ...updatedKehadiran }
+    }));
+    setShowToast(true)
+
+  };
+
+  const isChanged = (id_murid) => {
+    const asli = kehadiranAsli[id_murid];
+    const saatIni = kehadiran[id_murid];
+
+    return asli && saatIni && (
+      asli.alpha !== saatIni.alpha || asli.izin !== saatIni.izin || asli.sakit !== saatIni.sakit
+    );
+  };
+
+  const handleEditClick = (mapel) => {
+    setSelectedMapel(mapel);
+    setShowModalEditMapel(true);
+  };
+
+  const fetchDataNilaiMuridPerMapel = async () => {
     if (selectedMapel.id_mapel) {
       try {
         const kelasValue = dataKelas.find(
-          (kelas) => kelas.name === selectedKelas
+          (kelas) => kelas.name === selectedKelasDropdown
         )?.value;
 
         const responseDataMurid = await axios.get(
           `http://localhost:5000/nilai/rekap?id_kelas=${kelasValue}&id_mapel=${selectedMapel.id_mapel}`
         );
-        setdataMuridDanNilainya(responseDataMurid.data);
-        // console.log(responseDataMurid.data);
-        // console.log(selectedMapel.id_mapel);
 
+        // const responseKehadiranDataMurid = await axios.get(
+        //   `http://localhost:5000/murid/kehadiran/perkelas/${kelasValue}`
+        // );
+        setdataMuridDanNilainya(responseDataMurid.data);
+        // setdataMuridDanKehadiran(responseKehadiranDataMurid.data);
+        // console.log(responseKehadiranDataMurid);
+        // console.log(selectedMapel.id_mapel);
       } catch (error) {
         console.log("There was an error: " + error.message);
       }
@@ -114,76 +151,104 @@ const RekapNilai = () => {
   };
 
   useEffect(() => {
-
-    fetchData();
+    fetchDataNilaiMuridPerMapel();
     // console.log(dataMuridDanNilainya)
-   
-
-   
   }, [selectedMapel]);
 
+  useEffect(() => {
+    fetchDataKehadiran();
+  }, [showKehadiranModal]);
 
-  const handleSave = async () => {
-    // Kirim perubahan ke server
-    fetchData();
-    setShowModal(false)
+  useEffect(() => {
+    const kehadiranAwal = dataMuridDanKehadiran.reduce((acc, murid) => ({
+      ...acc,
+      [murid.id_murid]: murid.kehadiran
+    }), {});
+    setKehadiranAsli(kehadiranAwal);
+  }, [dataMuridDanKehadiran]);
 
-
+  const handleEdit = (id_murid, field, value) => {
+    setKehadiran(prev => ({
+      ...prev,
+      [id_murid]: { ...prev[id_murid], [field]: value }
+    }));
   };
 
 
+  const fetchDataKehadiran = async () => {
+    try {
+      const kelasValue = dataKelas.find(
+        (kelas) => kelas.name === selectedKelasDropdown
+      )?.value;
+
+      if (kelasValue!==undefined){
+      const responseKehadiranDataMurid = await axios.get(
+        `http://localhost:5000/murid/kehadiran/perkelas/${kelasValue}`
+      );
+
+      setdataMuridDanKehadiran(responseKehadiranDataMurid.data);
+      // console.log(responseKehadiranDataMurid);
+      // console.log(kelasValue);
+    }
+    } catch (error) {
+      console.log("There was an error: " + error.message);
+    }
+  }
+
+  const handleSave = async () => {
+    // Kirim perubahan ke server
+    await fetchDataNilaiMuridPerMapel();
+    setShowModalEditMapel(false);
+  };
+
   useEffect(() => {
-    setValues(dataMuridDanNilainya);
+    setDataMuridContainer(dataMuridDanNilainya);
     const initialVals = dataMuridDanNilainya.reduce((acc, curr) => {
-        acc[curr.id_murid] = curr.nilai;
-        return acc;
+      acc[curr.id_murid] = curr.isi_nilai;
+      return acc;
     }, {});
     setInitialValues(initialVals);
-}, [dataMuridDanNilainya]); // Dependensi useEffect adalah 'data'
-
+  }, [dataMuridDanNilainya]); // Dependensi useEffect adalah 'data'
 
   const filteredStudents = dataKelas.filter(
     (genderKelas) => genderKelas.gender === selectedGender
   );
 
   const handleChange = (id, newValue) => {
-    const newValues = values.map(murid => 
-        murid.id_murid === id ? { ...murid, nilai: newValue } : murid
+    const newValues = dataMuridContainer.map((murid) =>
+      murid.id_murid === id ? { ...murid, isi_nilai: newValue } : murid
     );
-    setValues(newValues);
-};
-const isValueChanged = (id) => {
-    return initialValues[id] !== values.find(m => m.id_murid === id).nilai;
-};
-
-const handleShow = async (id) => {
-  const murid = values.find(m => m.id_murid === id);
-  try {
-      const responseDataMurid = await axios.patch(
-          `http://localhost:5000/nilai/update?id=${murid.id_murid}&id_kelas=${murid.id_kelas}&id_mapel=${murid.id_mapel}&nilai=${murid.nilai}`);
-  
-          setIsiToast(`Nilai Terbaru: ${responseDataMurid.data.nilai},\n\n\n Nama: ${murid.nama_murid} `);
-          
-          // console.log(responseDataMurid.data.nilai);
-  } catch (error) {
-      
-  }
-
-  setShow(true)
-};
-
-
-
-  const columnProps = {
-    sm: 12,
-    md: 6,
-    lg: 3,
-    xl: 3,
+    setDataMuridContainer(newValues);
   };
+  const isValueChanged = (id) => {
+    return (
+      initialValues[id] !== dataMuridContainer.find((m) => m.id_murid === id).isi_nilai
+    );
+  };
+
+  const handleSimpanDataNilaiMurid = async (id) => {
+    const murid = dataMuridContainer.find((m) => m.id_murid === id);
+    try {
+      const responseDataMurid = await axios.patch(
+        `http://localhost:5000/nilai/update?id=${murid.id_murid}&id_kelas=${murid.id_kelas}&id_mapel=${murid.id_mapel}&isi_nilai=${murid.isi_nilai}`
+      );
+
+      setIsiToast(
+        `Nilai Terbaru: ${responseDataMurid.data.isi_nilai},\n\n\n Nama: ${murid.nama_murid} `
+      );
+
+      // console.log(initialValues[id]);
+      fetchDataNilaiMuridPerMapel();
+    } catch (error) {}
+
+    setShowToast(true);
+  };
+
+  
   const handleSubmit = async () => {
     try {
       const kelasValue = dataKelas.find(
-        (namaKelas) => namaKelas.name === selectedKelas
+        (namaKelas) => namaKelas.name === selectedKelasDropdown
       )?.value;
 
       const response = await axios.get(
@@ -192,15 +257,35 @@ const handleShow = async (id) => {
       // Set the response text to state
       // setResponseText(JSON.stringify(response.data, null, 2));
       setMapelData(response.data);
-
     } catch (error) {
       // Set error message to state
       console.log("There was an error: " + error.message);
     }
   };
 
+  // const handleAbsensiClick = async () => {};
+
   return (
     <div>
+      <ToastContainer className="p-3" position="top-center">
+              <Toast
+                onClose={() => setShowToast(false)}
+                show={showToast}
+                delay={3000}
+                autohide
+                bg="success"
+              >
+                <Toast.Header>
+                  <img
+                    className="rounded me-2"
+                    alt=""
+                  />
+                  <strong className="me-auto">Berhasil Disimpan!</strong>
+                  {/* <small>11 mins ago</small> */}
+                </Toast.Header>
+                <Toast.Body> {isiToast} </Toast.Body>
+              </Toast>
+            </ToastContainer>
       <Form className="m-1">
         <Row>
           <Col {...columnProps}>
@@ -229,8 +314,8 @@ const handleShow = async (id) => {
               <Form.Label>Pembagian Kelas</Form.Label>
               <Form.Control
                 as="select"
-                value={selectedKelas}
-                onChange={(e) => setSelectedKelas(e.target.value)}
+                value={selectedKelasDropdown}
+                onChange={(e) => setSelectedKelasDropdown(e.target.value)}
               >
                 <option value="">Pilih...</option>
                 {filteredStudents.map((student, index) => (
@@ -244,6 +329,20 @@ const handleShow = async (id) => {
           <Col {...columnProps}>
             <Button variant="primary" onClick={handleSubmit} className="mt-4">
               Proses
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleShowKehadiranModal}
+              className="mx-5 mt-4"
+            >
+              Lihat Kehadiran
+            </Button>
+            <Button
+              variant="outline-secondary"
+              onClick={handleShowKehadiranModal}
+              className="mx-5 mt-4"
+            >
+              Buat Rekap Rapot
             </Button>
           </Col>
         </Row>
@@ -285,7 +384,7 @@ const handleShow = async (id) => {
           </Col>
         </Row>
 
-        <Modal show={showModal} onHide={() => setShowModal(false)} fullscreen>
+        <Modal show={showModalEditMapel} onHide={() => setShowModalEditMapel(false)} fullscreen>
           <Modal.Header closeButton>
             <Modal.Title>
               Nilai {selectedMapel.nama_mapel} id Mapel:{" "}
@@ -293,58 +392,127 @@ const handleShow = async (id) => {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-          <Table striped bordered hover>
-            <thead>
+            <Table striped bordered hover>
+              <thead>
                 <tr>
-                    <th>Nama</th>
-                    <th>Nilai</th>
-                    <th>Tampilkan</th>
+                  <th>Nama</th>
+                  <th>Nilai</th>
+                  <th>Aksi</th>
                 </tr>
-            </thead>
-            <tbody>
-                {values.map(({ id_murid, nama_murid, nilai }) => (
-                    <tr key={id_murid}>
-                        <td>{nama_murid}</td>
-                        <td>
-                            <Form.Control
-                                type="text"
-                                value={nilai}
-                                onChange={(e) => handleChange(id_murid, e.target.value)}
-                            />
-                        </td>
-                        <td>
-                            <Button variant="primary" onClick={() => handleShow(id_murid)} disabled={!isValueChanged(id_murid)}>
-                                Simpan
-                            </Button>
-                        </td>
-                    </tr>
+              </thead>
+              <tbody>
+                {dataMuridContainer.map(({ id_murid, nama_murid, isi_nilai }) => (
+                  <tr key={id_murid}>
+                    <td>{nama_murid}</td>
+                    <td>
+                      <Form.Control
+                        type="text"
+                        value={isi_nilai}
+                        onChange={(e) => handleChange(id_murid, e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <Button
+                        variant="success"
+                        onClick={() => handleSimpanDataNilaiMurid(id_murid)}
+                        disabled={!isValueChanged(id_murid)}
+                      >
+                        Simpan
+                      </Button>
+                    </td>
+                  </tr>
                 ))}
-            </tbody>
-        </Table>
-
-
-
-          
+              </tbody>
+            </Table>
           </Modal.Body>
           <Modal.Footer>
-            <ToastContainer className="p-3"
-          position= 'top-center'>
-          <Toast onClose={() => setShow(false)} show={show} delay={3000} autohide bg="success">
-          <Toast.Header>
-            <img
-              src="holder.js/20x20?text=%20"
-              className="rounded me-2"
-              alt=""
-            />
-            <strong className="me-auto">Berhasil Disimpan!</strong>
-            {/* <small>11 mins ago</small> */}
-          </Toast.Header>
-          <Toast.Body> {isiToast} </Toast.Body>
-        </Toast>
-
-        </ToastContainer>
+            
             <Button variant="secondary" onClick={handleSave}>
               Tutup & Refresh
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal
+          show={showKehadiranModal}
+          onHide={handleCloseKehadiranModal}
+          size="lg"
+          fullscreen
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Data Kehadiran</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Nama</th>
+                  <th>Alpha</th>
+                  <th>Sakit</th>
+                  <th>Izin</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dataMuridDanKehadiran.map((murid) => (
+                  <tr key={murid.id_murid}>
+                    <td>{murid.nama_murid}</td>
+                    <td>
+                      <Form.Control
+                        type="number"
+                        defaultValue={murid.kehadiran.alpha}
+                        onChange={(e) =>
+                          handleEditKehadiran(
+                            murid.id_murid,
+                            "alpha",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <Form.Control
+                        type="number"
+                        defaultValue={murid.kehadiran.sakit}
+                        onChange={(e) =>
+                          handleEditKehadiran(
+                            murid.id_murid,
+                            "sakit",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <Form.Control
+                        type="number"
+                        defaultValue={murid.kehadiran.izin}
+                        onChange={(e) =>
+                          handleEditKehadiran(
+                            murid.id_murid,
+                            "izin",
+                            e.target.value
+                          )
+                        }
+                      />
+                    </td>
+                    <td>
+                      <Button
+                        variant="warning"
+                        onClick={() => handleSaveDataKehadiran(murid)}
+                        disabled={!isChanged(murid.id_murid)}
+                      >
+                        Simpan
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseKehadiranModal}>
+              Tutup
             </Button>
           </Modal.Footer>
         </Modal>
