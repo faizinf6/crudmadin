@@ -8,7 +8,9 @@ const router = express.Router();
 
 // Rute untuk membuat Kelas baru
 router.get('/', KelasController.getAllKelas);
+router.get('/data', KelasController.getDataKelasTanpaMurid);
 router.get('/murid/all/:id_kelas', KelasController.getAllNamaMurid);
+// router.get('/murid/all/:id_kelas', KelasController.getKelasById);
 router.post('/', KelasController.createKelas);
 router.post('/batch', KelasController.createManyKelas);
 

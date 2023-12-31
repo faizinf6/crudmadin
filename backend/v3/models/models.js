@@ -88,6 +88,11 @@ const NilaiMapel = sequelize.define('NilaiMapel', {
     type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false
   },
+
+  status_taftisan: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
   isi_nilai: {
     type: DataTypes.FLOAT.UNSIGNED,
     allowNull: false
@@ -131,11 +136,64 @@ const Kehadiran = sequelize.define('Kehadiran', {
     allowNull: false
   }
 }, { freezeTableName: true, timestamps: false });
+const NilaiHafalan = sequelize.define('NilaiHafalan', {
+
+  id_murid: {
+    type: DataTypes.INTEGER.UNSIGNED,
+    primaryKey:true,
+    allowNull: false
+  },
+  pencapaian: {
+    type: DataTypes.FLOAT.UNSIGNED,
+    allowNull: false
+  },
+  kelancaran: {
+    type: DataTypes.FLOAT.UNSIGNED,
+    allowNull: false
+  },
+  artikulasi: {
+    type: DataTypes.FLOAT.UNSIGNED,
+    allowNull: false
+  }
+}, { freezeTableName: true, timestamps: false });
+
+const Admin = sequelize.define('Admin', {
+  id_admin: {
+    type: DataTypes.INTEGER.UNSIGNED,
+    primaryKey: true,
+    allowNull: false
+  },
+  nama_admin: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  no_hp: {
+    type: DataTypes.BIGINT.UNSIGNED,
+    allowNull: false,
+    unique: true
+  },
+  id_kelas: {
+    type: DataTypes.INTEGER.UNSIGNED,
+    allowNull: false
+  },
+  isSuperAdmin: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, {
+  freezeTableName: true, timestamps: false
+});
 
 // Asosiasi antara Kelas dan Murid
 Kelas.hasMany(Murid, { foreignKey: 'id_kelas' });
 Murid.belongsTo(Kelas, { foreignKey: 'id_kelas' });
 
+// Admin.hasOne(Kelas,{foreignKey:'id_kelas'})
+// Kelas.belongsTo(Admin,{foreignKey:'id_kelas'})
 // Asosiasi antara Kelas dan Mapel
 // Kelas.hasMany(Mapel, { foreignKey: 'id_kelas' });
 // Mapel.belongsTo(Kelas, { foreignKey: 'id_kelas' });
@@ -150,6 +208,9 @@ Mapel.belongsTo(Angkatan, { foreignKey: 'id_angkatan' });
 Murid.hasMany(NilaiMapel,{foreignKey:'id_murid'})
 NilaiMapel.belongsTo(Murid, { foreignKey: 'id_murid' });
 NilaiMapel.belongsTo(Mapel, { foreignKey: 'id_mapel' });
+
+Murid.hasOne(NilaiHafalan,{foreignKey:'id_murid'})
+NilaiHafalan.belongsTo(Murid,{foreignKey:'id_murid'})
 
 // Asosiasi antara CabangIlmu dengan NilaiMapel dan Mapel
 CabangIlmu.hasMany(NilaiMapel, { foreignKey: 'id_fan' });
@@ -173,4 +234,4 @@ async function syncModels() {
 }
 
 syncModels();
-export { Murid, Kelas, Angkatan, Mapel, NilaiMapel, CabangIlmu, Kehadiran };
+export { Murid, Kelas, Angkatan, Mapel, NilaiMapel, CabangIlmu, Kehadiran,Admin,NilaiHafalan };

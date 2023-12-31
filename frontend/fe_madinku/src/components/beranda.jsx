@@ -1,8 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import { ReactComponent as AbsensiIcon } from '../icons/icon1.svg';
 import Wave from 'react-wavify'
+import {Button} from "react-bootstrap";
+import Navigationbar from "./navbar";
+var v = 0;
 const BerandaPages = ()=>{
+    const navigate = useNavigate()
+
     const menuContainerStyle = {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr', // two columns
@@ -52,12 +57,20 @@ const BerandaPages = ()=>{
         clear: 'both',
         display: 'table',
       };
-  
-    
+
+
+    function handleLogout() {
+        localStorage.removeItem('user');
+        navigate('/');
+
+    }
+    //sistem absensi terpadu ppds
+
     return(
         <div>
+            <Navigationbar ></Navigationbar>
         <div style={menuContainerStyle}>
-        <Link to="/absensi" style={{ ...menuItemStyle, ...absensiStyle }}>
+        <Link to="/absensi" style={{ ...menuItemStyle, ...absensiStyle }} >
           <span style={beforeStyle}>
           </span>
           
@@ -82,12 +95,13 @@ const BerandaPages = ()=>{
 
 
   </div>
+            <Button variant={'outline-secondary'} onClick={handleLogout}>Log Out</Button>
   <Wave fill='#f79902'
         paused={false}
         style={{ display: 'flex' }}
         options={{
-          height: 20,
-          amplitude: 30,
+          height: 120,
+          amplitude: 20,
           speed: 0.2,
           points: 4
         }}

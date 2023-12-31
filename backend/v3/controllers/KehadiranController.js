@@ -74,10 +74,26 @@ export class KehadiranController {
         res.status(500).send(error.message || 'Terjadi kesalahan saat mencari atau membuat kehadiran.');
       }
     }
+
+    static async getPelanggaran(req, res) {
+      try {
+        const idMurid = req.params.id_murid;
+        let kehadiran = await Kehadiran.findOne({ where: { id_murid: idMurid } });
+
+        if (!kehadiran) {
+          kehadiran = await Kehadiran.create({ id_murid: idMurid, alpha: 0, izin: 0, sakit: 0 });
+        }
+        kehadiran.alpha = parseFloat(kehadiran.alpha)/15
+
+        res.status(200).send(kehadiran);
+      } catch (error) {
+        res.status(500).send(error.message || 'Terjadi kesalahan saat mencari atau membuat kehadiran.');
+      }
+    }
     static async findOrCreateKehadiranByIdKelas(req, res) {
       try {
         const idKelas = req.params.id_kelas;
-        const muridDiKelas = await Murid.findAll({ where: { id_kelas: idKelas } });
+        const muridDiKelas = await Murid.findAll({ where: { id_kelas: idKelas,isBoyong: false  } });
     
         if (!muridDiKelas || muridDiKelas.length === 0) {
           return res.status(404).send('Tidak ada murid yang ditemukan untuk kelas ini.');

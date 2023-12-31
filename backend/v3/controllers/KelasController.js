@@ -1,4 +1,4 @@
-import { Model } from 'sequelize';
+import {JSON, Model} from 'sequelize';
 import { Angkatan, Kelas,Mapel,Murid } from '../models/models.js'; // Ganti dengan lokasi file model Anda
 
 export class KelasController {
@@ -27,13 +27,32 @@ export class KelasController {
             res.status(500).json({ error: error.message });
         }
     }
+    static async getDataKelasTanpaMurid(req, res) {
+        try {
+            const kelasList = await Kelas.findAll(
+            );
+            const kelasDataDenganGender = kelasList.map(kelas => {
+                // Konversi objek Sequelize ke JSON murni
+                const kelasPlain = kelas.get({ plain: true });
+
+                // Menentukan gender berdasarkan nama_kelas
+                const namaKelasLower = kelasPlain.nama_kelas.toLowerCase();
+                kelasPlain.gender = namaKelasLower.includes('pi') ? 'Pi' : 'Pa';
+
+                return kelasPlain;
+            });
+            res.status(200).json((kelasDataDenganGender));
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 
     static async getKelasById(req, res) {
         try {
             const { id } = req.params;
             const kelas = await Kelas.findByPk(id);
             if (kelas) {
-                res.status(200).json(kelas);
+                res.status(200).json(kelas.Murids);
             } else {
                 res.status(404).json({ message: 'Kelas not found' });
             }
@@ -106,7 +125,7 @@ export class KelasController {
               where: { id_kelas: id_kelas }
               ,        include:[{
                 model: Murid,
-                as: 'Murids'
+                as: 'Murids',where:{isBoyong:false}
               }] // Hanya mengambil atribut nama_murid
           });
 
@@ -146,6 +165,18 @@ export class KelasController {
                 as: 'Angkatan'
               }]
         });
+
+        const mapelUtama = await Mapel.findAll({
+            where: { id_angkatan: kelas.id_angkatan },
+
+        });
+        //ubah raw mysql ke json
+        const jsonData = mapelUtama.map((mapel) => mapel.dataValues);
+        let result = separateMapel(jsonData)
+
+        console.log(result.mapelUtama)
+
+
             res.status(200).json(mapels );
 
 
@@ -170,6 +201,27 @@ export class KelasController {
 
 
 
+}
+
+export function separateMapel(jsonData) {
+    let mapelUtama = [];
+    let mapelOpsional = [];
+    let idsMapelUtama = [];
+    let foundRiyadloh = false;
+
+    for (let item of jsonData) {
+        if (item.nama_mapel === 'Riyadloh') {
+            foundRiyadloh = true;
+        }
+        if (!foundRiyadloh) {
+            mapelUtama.push(item);
+            idsMapelUtama.push(item.id_mapel);
+        } else {
+            mapelOpsional.push(item);
+        }
+    }
+
+    return { mapelUtama, mapelOpsional, idsMapelUtama };
 }
 
 export default KelasController;

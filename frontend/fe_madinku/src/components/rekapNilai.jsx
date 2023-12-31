@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import TabelRapot from "./TabelRapot";
 import {
   Form,
   Button,
@@ -8,11 +9,12 @@ import {
   Table,
   Modal,
   Toast,
-  ToastContainer,
+  ToastContainer
 } from "react-bootstrap";
 
 const RekapNilai = () => {
   const [mapelData, setMapelData] = useState([]);
+  const [dataRapotJson, setdataRapotJson] = useState([]);
   const [dataMuridDanNilainya, setdataMuridDanNilainya] = useState([]);
   const [dataMuridDanKehadiran, setdataMuridDanKehadiran] = useState([]);
   const [isiToast, setIsiToast] = useState("");
@@ -24,6 +26,10 @@ const RekapNilai = () => {
   const [showToast, setShowToast] = useState(false);
   const [showModalEditMapel, setShowModalEditMapel] = useState(false);
   const [selectedMapel, setSelectedMapel] = useState({});
+  const [showTabelRapotModal, setshowTabelRapotModal] = useState(false);
+
+
+
   const dataKelas = [
     { name: "Pilih Kelas....", value: 1000 },
     { name: "4 Ibt Pa Pagi", value: 1000, gender: "L" },
@@ -263,10 +269,32 @@ const RekapNilai = () => {
     }
   };
 
-  // const handleAbsensiClick = async () => {};
+  const handleBuatRekapRapotClick = async () => {
+    try {
+      const kelasValue = dataKelas.find(
+          (namaKelas) => namaKelas.name === selectedKelasDropdown
+      )?.value;
+
+      const response = await axios.get(
+          `http://localhost:5000/murid/rapot/${kelasValue}`
+      );
+      // Set the response text to state
+      // setResponseText(JSON.stringify(response.data, null, 2));
+      setdataRapotJson(response.data);
+      // console.log(response.data)
+
+    } catch (error) {
+      // Set error message to state
+      console.log("There was an error: " + error.message);
+    }
+
+    setshowTabelRapotModal(true)
+
+
+  };
 
   return (
-    <div>
+    <div className='text-center'>
       <ToastContainer className="p-3" position="top-center">
               <Toast
                 onClose={() => setShowToast(false)}
@@ -286,9 +314,9 @@ const RekapNilai = () => {
                 <Toast.Body> {isiToast} </Toast.Body>
               </Toast>
             </ToastContainer>
-      <Form className="m-1">
-        <Row>
-          <Col {...columnProps}>
+      <Form className="m-3 text-center">
+
+
             <Form.Group>
               <div key={`inline-radio`} className="mb-3">
                 <Form.Check
@@ -324,28 +352,27 @@ const RekapNilai = () => {
                   </option>
                 ))}
               </Form.Control>
+
+              <Button variant="primary" onClick={handleSubmit}
+                      className="mt-4">
+                Proses
+              </Button>
+              <Button
+                  variant="danger"
+                  onClick={handleShowKehadiranModal}
+                  className="ms-4 mt-4"
+              >
+                Lihat Kehadiran
+              </Button>
+              <Button
+                  variant="outline-secondary"
+                  onClick={handleBuatRekapRapotClick}
+                  className="mx-1 mt-4"
+              >
+                Buat Rekap Rapot
+              </Button>
             </Form.Group>
-          </Col>
-          <Col {...columnProps}>
-            <Button variant="primary" onClick={handleSubmit} className="mt-4">
-              Proses
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleShowKehadiranModal}
-              className="mx-5 mt-4"
-            >
-              Lihat Kehadiran
-            </Button>
-            <Button
-              variant="outline-secondary"
-              onClick={handleShowKehadiranModal}
-              className="mx-5 mt-4"
-            >
-              Buat Rekap Rapot
-            </Button>
-          </Col>
-        </Row>
+
       </Form>
       {/* Display the response text */}
       <div className="mt-3">
@@ -353,7 +380,7 @@ const RekapNilai = () => {
           <pre>{responseText}</pre> */}
 
         <Row className="p-2">
-          <Col md={{ span: 5, offset: 5 }}>
+          <Col >
             <Table striped bordered hover>
               <thead>
                 <tr>
@@ -426,7 +453,7 @@ const RekapNilai = () => {
             </Table>
           </Modal.Body>
           <Modal.Footer>
-            
+
             <Button variant="secondary" onClick={handleSave}>
               Tutup & Refresh
             </Button>
@@ -516,6 +543,29 @@ const RekapNilai = () => {
             </Button>
           </Modal.Footer>
         </Modal>
+
+        <Modal
+            show={showTabelRapotModal}
+            onHide={() => setshowTabelRapotModal(false)}
+            size="lg"
+            fullscreen
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Tabel Rapot</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <TabelRapot jsonData={dataRapotJson} dataKehadiran={dataMuridDanKehadiran}/>
+
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseKehadiranModal}>
+              Tutup
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+
+
       </div>
     </div>
   );
