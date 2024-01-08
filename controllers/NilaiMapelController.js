@@ -118,41 +118,44 @@ export class NilaiMuridController {
         }
     }
 
-    
+
     static async getAllNilaiBySpecificIdMapel(req, res) {
         try {
             const { id_kelas, id_mapel } = req.query;
 
-            const nilaiMapelList = await NilaiMapel.findAll({
-                where: { id_mapel: id_mapel },
-                include: [{
-                    model: Murid,
-                    as: 'Murid',
-                    required: false,
-                    where: [{ id_kelas: id_kelas}]
-                },{ model: Mapel, attributes: ['id_mapel','nama_mapel'] },]
+            // Ambil daftar murid di kelas
+            const daftarMuridDikelas = await Murid.findAll({
+                where: { id_kelas: id_kelas }
             });
 
+            // Ambil informasi mapel
+            const mapel = await Mapel.findByPk(id_mapel);
 
-            const result = nilaiMapelList.map(record => {
+            // Ambil nilai mapel untuk setiap murid dan gabungkan
+            const hasil = await Promise.all(daftarMuridDikelas.map(async (murid) => {
+                const nilai = await NilaiMapel.findOne({
+                    where: {
+                        id_murid: murid.id_murid,
+                        id_mapel: id_mapel
+                    }
+                });
 
                 return {
-                    id_murid: record.id_murid,
-                    nama_murid: record.Murid.nama_murid,  //Kelas menjadi "Kela" karena babi sequelize tetep menghapus S di model name ...sayaa tidak tau pushing bang!
-                    status_murid:record.Murid.isBoyong,
-                    id_mapel: record.Mapel.id_mapel,
-                    nama_mapel: record.Mapel.nama_mapel,
-                    isi_nilai: record.isi_nilai
+                    id_murid: murid.id_murid,
+                    nama_murid: murid.nama_murid,
+                    status_murid: murid.isBoyong,
+                    id_mapel: mapel.id_mapel,
+                    nama_mapel: mapel.nama_mapel,
+                    isi_nilai: nilai ? nilai.isi_nilai : 0 // Atau handling lain jika tidak ada nilai
                 };
-            })
+            }));
 
-            const filteredResult = result.filter(item => item.status_murid === false);
-
-            res.status(200).json(filteredResult);
+            res.status(200).json(hasil);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
     }
+
 
     static async addNilaiMapelByIdKelas(req, res) {
         try {
@@ -197,43 +200,57 @@ export class NilaiMuridController {
         }
     }
 
-    static async addNilaiMapelByIdKelasAuto(req, res) {
+    static async addAllAuto(req, res) {
         try {
-            const { id_kelas } = req.query;
-            const daftarKelas = await Kelas.findAll(
-                {where: {id_kelas:id_kelas},
-                include:{model:Murid}
+            const semuaKelas = await Kelas.findAll();
+            const daftarnya = semuaKelas.map(kelas => kelas.dataValues);
+
+            // Use Promise.all to wait for all operations to complete
+            await Promise.all(daftarnya.map(async (semua) => {
+                const daftarKelas = await Kelas.findAll({
+                    where: { id_kelas: semua.id_kelas },
+                    include: { model: Murid }
+                });
+                const daftarMuridDiKelas = daftarKelas[0].Murids;
+
+                // Get daftarMapel
+                const daftarMapel = await Mapel.findAll({
+                    where: { id_angkatan: daftarKelas[0].id_angkatan }
+                });
+
+                // Process each student and mapel
+                for (const student of daftarMuridDiKelas) {
+                    await Promise.all(daftarMapel.map(async (mapel) => {
+                        await NilaiMapel.findOrCreate({
+                            where: {
+                                id_murid: student.id_murid,
+                                id_mapel: mapel.id_mapel
+                            },
+                            defaults: {
+                                status_taftisan: false,
+                                isi_nilai: 0,
+                                id_fan: mapel.id_fan
+                            }
+                        });
+                    }));
                 }
-            )
-            const daftarMuridDiKelas = daftarKelas[0].Murids
 
-            //mendapatkan id angkatan kelas lalu mendapatkan daftar mapel yang diikuti
-            const daftarMapel = await Mapel.findAll({
-                where:{id_angkatan:daftarKelas[0].id_angkatan}
-            })
-
-
-
-            for (const student of daftarMuridDiKelas) {
-                for (const mapel of daftarMapel) {
-                    // Use findOrCreate to check if the NilaiMapel entry exists
-                    await NilaiMapel.findOrCreate({
-                        where: {
-                            id_murid: student.id_murid,
-                            id_mapel: mapel.id_mapel
-                        },
-                        defaults: {
-                            status_taftisan: false,
-                            isi_nilai: 0,
-                            id_fan:mapel.id_fan
+                for (const murid of daftarMuridDiKelas){
+                    await NilaiHafalan.findOrCreate({
+                        where:{id_murid:murid.id_murid},
+                        defaults:{
+                            pencapaian:0,
+                            kelancaran:0,
+                            artikulasi:0
                         }
-                    });
-
+                    })
                 }
-            }
 
 
-            res.status(201).json("Berhasil Dibuat!")
+
+            }));
+
+            res.status(201).json("Berhasil Dibuat!");
         } catch (error) {
             res.status(400).json({ error: error.message });
         }

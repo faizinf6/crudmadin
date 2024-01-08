@@ -4,7 +4,7 @@ import sequelize from '../config/Database.js';
 // Definisi entitas Murid
 const Murid = sequelize.define('Murid', {
   id_murid: {
-    type: DataTypes.INTEGER.UNSIGNED,
+    type: DataTypes.BIGINT.UNSIGNED,
     primaryKey: true,
     allowNull: false
   },
@@ -81,7 +81,7 @@ const NilaiMapel = sequelize.define('NilaiMapel', {
     primaryKey: true
   },
   id_murid: {
-    type: DataTypes.INTEGER.UNSIGNED,
+    type: DataTypes.BIGINT.UNSIGNED,
     allowNull: false
   },
   id_mapel: {
@@ -120,7 +120,7 @@ const Kehadiran = sequelize.define('Kehadiran', {
     autoIncrement: true
   },
   id_murid: {
-    type: DataTypes.INTEGER.UNSIGNED,
+    type: DataTypes.BIGINT.UNSIGNED,
     allowNull: false
   },
   alpha: {
@@ -139,7 +139,7 @@ const Kehadiran = sequelize.define('Kehadiran', {
 const NilaiHafalan = sequelize.define('NilaiHafalan', {
 
   id_murid: {
-    type: DataTypes.INTEGER.UNSIGNED,
+    type: DataTypes.BIGINT.UNSIGNED,
     primaryKey:true,
     allowNull: false
   },
@@ -191,12 +191,6 @@ const Admin = sequelize.define('Admin', {
 // Asosiasi antara Kelas dan Murid
 Kelas.hasMany(Murid, { foreignKey: 'id_kelas' });
 Murid.belongsTo(Kelas, { foreignKey: 'id_kelas' });
-
-// Admin.hasOne(Kelas,{foreignKey:'id_kelas'})
-// Kelas.belongsTo(Admin,{foreignKey:'id_kelas'})
-// Asosiasi antara Kelas dan Mapel
-// Kelas.hasMany(Mapel, { foreignKey: 'id_kelas' });
-// Mapel.belongsTo(Kelas, { foreignKey: 'id_kelas' });
 
 // Asosiasi antara Angkatan, Kelas, dan Mapel
 Angkatan.hasMany(Kelas, { foreignKey: 'id_angkatan' });

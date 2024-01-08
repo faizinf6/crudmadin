@@ -17,7 +17,7 @@ router.get('/boyong-pgnt', MuridController.paginationAllMuridBoyong);
 
 // router.get('/nilai/mapel/', NilaiMuridController.getAllNilai);
 
-router.post('/tambah', MuridController.createMurid);
+router.post('/tambah', MuridController.createOneMurid);
 // router.post('/nilai/mapel/', NilaiMuridController.addNilai);
 // router.post('/nilai/mapel/batch', NilaiMuridController.addManyNilai);
 router.post('/batch', MuridController.createManyMurid);

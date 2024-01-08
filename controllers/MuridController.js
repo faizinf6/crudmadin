@@ -1,17 +1,88 @@
-import {CabangIlmu, Kelas, Mapel, Murid, NilaiMapel} from '../models/models.js'; // Sesuaikan dengan lokasi file model Anda
+import {CabangIlmu, Kelas, Mapel, Murid, NilaiHafalan, NilaiMapel} from '../models/models.js'; // Sesuaikan dengan lokasi file model Anda
 
 export class MuridController {
     // Create
-    static async createMurid(req, res) {
+    static async createOneMurid(req, res) {
         try {
             const {id_murid, nama_murid, id_kelas, isBoyong} = req.body;
             const murid = await Murid.create({id_murid, nama_murid, id_kelas, isBoyong});
-            res.status(201).json(murid);
+            const dataKelas = await Kelas.findOne({where:{id_kelas:id_kelas}})
+            const daftarMapel = await Mapel.findAll({
+                where: { id_angkatan: dataKelas.id_angkatan }
+            });
+
+            const nilaiMapeluntukSingleMurid = daftarMapel.map(async (mapel)=>{
+                await NilaiMapel.findOrCreate({
+                    where: {id_murid: id_murid, id_mapel: mapel.id_mapel},
+                    defaults: {
+                        status_taftisan: false,
+                        isi_nilai: 0,
+                        id_fan: mapel.id_fan
+                    }
+                })
+
+            })
+
+            await NilaiHafalan.findOrCreate({
+                where:{id_murid:id_murid},
+                defaults:{
+                    pencapaian:0,
+                    kelancaran:0,
+                    artikulasi:0
+                }
+            })
+
+            res.status(201).json(nilaiMapeluntukSingleMurid);
 
         } catch (error) {
             res.status(400).json({error: error.message});
         }
     }
+
+    static async createManyMurid(req, res) {
+        try {
+            const muridArray = req.body; // Array of murid objects
+
+            for (const muridData of muridArray) {
+                const { id_murid, nama_murid, id_kelas, isBoyong } = muridData;
+                await Murid.create({ id_murid, nama_murid, id_kelas, isBoyong });
+                const dataKelas = await Kelas.findOne({ where: { id_kelas: id_kelas } });
+                const daftarMapel = await Mapel.findAll({
+                    where: { id_angkatan: dataKelas.id_angkatan }
+                });
+
+                const nilaiMapelPromises = daftarMapel.map(mapel => {
+                    return NilaiMapel.findOrCreate({
+                        where: { id_murid: id_murid, id_mapel: mapel.id_mapel },
+                        defaults: {
+                            status_taftisan: false,
+                            isi_nilai: 0,
+                            id_fan: mapel.id_fan
+                        }
+                    });
+                });
+
+                // Wait for all NilaiMapel operations to complete
+                await Promise.all(nilaiMapelPromises);
+
+                await NilaiHafalan.findOrCreate({
+                    where: { id_murid: id_murid },
+                    defaults: {
+                        pencapaian: 0,
+                        kelancaran: 0,
+                        artikulasi: 0
+                    }
+                });
+            }
+
+            // Respond with the total number of murids created
+            res.status(201).json(`${muridArray.length} Murid telah berhasil dibuat`);
+
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    }
+
 
     // Read
     static async getAllMurid(req, res) {
@@ -125,23 +196,7 @@ export class MuridController {
         }
     }
 
-    static async createManyMurid(req, res) {
-        try {
-            const murids = req.body; // Ini adalah array murid
 
-            // Memastikan bahwa request adalah array
-            if (!Array.isArray(murids)) {
-                return res.status(400).json({message: 'Input harus berupa array'});
-            }
-
-            // Menambahkan semua murid ke dalam database
-            const createdMurids = await Murid.bulkCreate(murids, {validate: true});
-
-            res.status(201).json(createdMurids);
-        } catch (error) {
-            res.status(400).json({error: error.message});
-        }
-    }
 
     static async getAllMapelSpecificMurid(req, res) {
         try {
@@ -245,44 +300,6 @@ export class MuridController {
 
             const cece = await MuridController.getNilaiForAllMurids(listbabi[0])
             res.status(200).json(cece);
-            // const listKelas = await  Kelas.findAll({
-            //     where:{id_kelas:id_kelas},
-            //     include: [{model:Murid,include:[{model:NilaiMapel,include:[{model:Mapel}]}]  }]
-            // });
-
-            // const transformData = (data) => {
-            //     return data.flatMap(kelas =>
-            //         kelas.Murids.flatMap(murid =>
-            //             murid.NilaiMapels.map(nilaiMapel => ({
-            //                 nama_kelas: kelas.nama_kelas,
-            //                 id_murid: murid.id_murid,
-            //                 nama_murid: murid.nama_murid,
-            //                 nama_mapel: nilaiMapel.Mapel.nama_mapel,
-            //                 isi_nilai: nilaiMapel.isi_nilai,
-            //                 id_fan: nilaiMapel.id_fan
-            //             }))
-            //         )
-            //     );}
-            // const hasil = transformData(listKelas);
-            //
-            // const groupByMurid = (data) => {
-            //     const grouped = data.reduce((acc, item) => {
-            //         // Jika id_murid belum ada di accumulator, buat key baru
-            //         if (!acc[item.id_murid]) {
-            //             acc[item.id_murid] = [];
-            //         }
-            //         // Tambahkan item ke dalam array untuk id_murid yang sesuai
-            //         acc[item.id_murid].push(item);
-            //         return acc;
-            //     }, {});
-            //
-            //     return Object.values(grouped);
-            // };
-            //
-            // const hasilAkhir = groupByMurid(hasil);
-            //
-            // res.status(200).json(hasilAkhir );
-            //
 
         } catch (error) {
             res.status(500).json({error: error.message});
