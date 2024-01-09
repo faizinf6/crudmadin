@@ -2,7 +2,7 @@ import { Sequelize, Model, DataTypes } from 'sequelize';
 import sequelize from '../config/Database.js';
 
 // Definisi entitas Murid
-const Murid = sequelize.define('Murid', {
+const Murid = sequelize.define('murid', {
   id_murid: {
     type: DataTypes.BIGINT.UNSIGNED,
     primaryKey: true,
@@ -23,7 +23,7 @@ const Murid = sequelize.define('Murid', {
 }, { freezeTableName: true, timestamps: false });
 
 // Definisi entitas Kelas
-const Kelas = sequelize.define('Kelas', {
+const Kelas = sequelize.define('kelas', {
   id_kelas: {
     type: DataTypes.INTEGER.UNSIGNED,
     primaryKey: true,
@@ -40,7 +40,7 @@ const Kelas = sequelize.define('Kelas', {
 }, { freezeTableName: true, timestamps: false });
 
 // Definisi entitas Angkatan
-const Angkatan = sequelize.define('Angkatan', {
+const Angkatan = sequelize.define('angkatan', {
   id_angkatan: {
     type: DataTypes.INTEGER.UNSIGNED,
     primaryKey: true,
@@ -53,7 +53,7 @@ const Angkatan = sequelize.define('Angkatan', {
 }, { freezeTableName: true, timestamps: false });
 
 // Definisi entitas Mapel
-const Mapel = sequelize.define('Mapel', {
+const Mapel = sequelize.define('mapel', {
   id_mapel: {
     type: DataTypes.INTEGER.UNSIGNED,
     primaryKey: true,
@@ -74,7 +74,7 @@ const Mapel = sequelize.define('Mapel', {
 }, { freezeTableName: true, timestamps: false });
 
 // Definisi entitas NilaiMapel
-const NilaiMapel = sequelize.define('NilaiMapel', {
+const NilaiMapel = sequelize.define('nilaimapel', {
   id_nilai: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -100,7 +100,7 @@ const NilaiMapel = sequelize.define('NilaiMapel', {
 }, { freezeTableName: true, timestamps: false });
 
 // Definisi entitas CabangIlmu
-const CabangIlmu = sequelize.define('CabangIlmu', {
+const CabangIlmu = sequelize.define('cabangilmu', {
   id_fan: {
     type: DataTypes.STRING,
     primaryKey: true,
@@ -113,7 +113,7 @@ const CabangIlmu = sequelize.define('CabangIlmu', {
 }, { freezeTableName: true, timestamps: false });
 
 // Definisi entitas Kehadiran
-const Kehadiran = sequelize.define('Kehadiran', {
+const Kehadiran = sequelize.define('kehadiran', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -136,7 +136,7 @@ const Kehadiran = sequelize.define('Kehadiran', {
     allowNull: false
   }
 }, { freezeTableName: true, timestamps: false });
-const NilaiHafalan = sequelize.define('NilaiHafalan', {
+const NilaiHafalan = sequelize.define('nilaihafalan', {
 
   id_murid: {
     type: DataTypes.BIGINT.UNSIGNED,
@@ -157,7 +157,7 @@ const NilaiHafalan = sequelize.define('NilaiHafalan', {
   }
 }, { freezeTableName: true, timestamps: false });
 
-const Admin = sequelize.define('Admin', {
+const Admin = sequelize.define('admin', {
   id_admin: {
     type: DataTypes.INTEGER.UNSIGNED,
     primaryKey: true,
