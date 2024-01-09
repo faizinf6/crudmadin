@@ -19,7 +19,7 @@ export class KelasController {
             const kelasList = await Kelas.findAll(
                 { include: [{
                     model: Murid,
-                    as: 'Murids'
+                    as: 'murids'
                   }]}
             );
             res.status(200).json(kelasList);
@@ -125,7 +125,7 @@ export class KelasController {
               where: { id_kelas: id_kelas }
               ,        include:[{
                 model: Murid,
-                as: 'Murids',where:{isBoyong:false}
+                as: 'murids',where:{isBoyong:false}
               }] // Hanya mengambil atribut nama_murid
           });
 
@@ -162,7 +162,7 @@ export class KelasController {
             where: { id_angkatan: kelas.id_angkatan },
              include: [{
                 model: Angkatan,
-                as: 'Angkatan'
+                as: 'angkatan'
               }]
         });
 

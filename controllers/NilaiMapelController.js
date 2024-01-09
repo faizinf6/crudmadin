@@ -106,10 +106,10 @@ export class NilaiMuridController {
             const kelasList = await NilaiMapel.findAll(
                 { include: [{
                     model: Mapel,
-                    as: 'Mapel'
+                    as: 'mapel'
                   },{
                     model: Murid,
-                    as: 'Murid'
+                    as: 'murid'
                   }]}
             );
             res.status(200).json(kelasList);

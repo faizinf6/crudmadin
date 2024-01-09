@@ -24,7 +24,7 @@ export class MapelController {
     static async getAllMapelWithFan(req, res) {
         try {
             const mapels = await Mapel.findAll({
-                include:[{model:CabangIlmu, as: 'CabangIlmu'}]
+                include:[{model:CabangIlmu, as: 'cabangilmu'}]
             });
             res.status(200).json(mapels);
         } catch (error) {
