@@ -166,32 +166,11 @@ export class KelasController {
               }]
         });
 
-        const mapelUtama = await Mapel.findAll({
-            where: { id_angkatan: kelas.id_angkatan },
 
-        });
-        //ubah raw mysql ke json
-        const jsonData = mapelUtama.map((mapel) => mapel.dataValues);
-        let result = separateMapel(jsonData)
-
-        console.log(result.mapelUtama)
+        res.status(200).json(mapels );
 
 
-            res.status(200).json(mapels );
 
-
-        // const namaKelas = await Kelas.findAll({
-        //     where: { id_kelas: kelas.id_angkatan },
-        //     attributes: ['nama_mapel']
-        // });
-
-        // if (mapels && mapels.length > 0) {
-        //     const namaMapels = mapels.map(m => m.nama_mapel);
-        //     const namaKelas = kelas.nama_kelas;
-        //     res.status(200).json(namaMapels );
-        // } else {
-        //     res.status(404).json({ message: 'Tidak ada mata pelajaran ditemukan untuk kelas ini' });
-        // }
 
 
     } catch (error) {

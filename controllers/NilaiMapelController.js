@@ -87,8 +87,8 @@ export class NilaiMuridController {
                     nama_murid: murid.nama_murid, 
                   //  id_kelas: record.Kela.id_kelas, //Kelas menjadi "Kela" karena babi sequelize tetep menghapus S di model name ...sayaa tidak tau pushing bang!
                     //nama_kelas: record.Kela.nama_kelas, //Kelas menjadi "Kela" karena babi sequelize tetep menghapus S di model name ...sayaa tidak tau pushing bang!
-                    id_mapel: record.Mapel.id_mapel,
-                    nama_mapel: record.Mapel.nama_mapel,
+                    id_mapel: record.mapel.id_mapel,
+                    nama_mapel: record.mapel.nama_mapel,
                     nilai: record.isi_nilai
                 };
             });
@@ -124,9 +124,7 @@ export class NilaiMuridController {
             const { id_kelas, id_mapel } = req.query;
 
             // Ambil daftar murid di kelas
-            const daftarMuridDikelas = await Murid.findAll({
-                where: { id_kelas: id_kelas }
-            });
+            const daftarMuridDikelas =  await Murid.findAll({ where: { id_kelas: id_kelas,isBoyong: false  } });
 
             // Ambil informasi mapel
             const mapel = await Mapel.findByPk(id_mapel);
@@ -285,17 +283,9 @@ export class NilaiMuridController {
 
             // Step 1 . Ambil Query id_kelas, lalu cari siapa saja yang berada di kelas itu?
             const { id_kelas } = req.query;
-            const daftarKelas = await Kelas.findAll(
-                {where: {id_kelas:id_kelas},
-                    include: [{
-                        model: Murid,
-                        where: { isBoyong: false }, // Add this line to filter Murid records
-                        required: false // Optional based on your requirements
-                    }]
-                }
-            )
+            const daftarKelas = await Kelas.findByPk(id_kelas)
             //Ambil nama-nama muridnya saja
-            const daftarMuridDiKelas = daftarKelas[0].murids
+            const daftarMuridDiKelas =  await Murid.findAll({ where: { id_kelas: id_kelas,isBoyong: false  } });
 
             //filter data raw sql ke json (diambil dataValuesnya saja)
             const jsonData = daftarMuridDiKelas.map((murid) => murid.dataValues);
@@ -317,16 +307,17 @@ export class NilaiMuridController {
                     id_murid:record.id_murid,
                     nama_murid:record.murid.nama_murid,
                     id_mapel:record.id_mapel,
-                    nama_mapel:record.Mapel.nama_mapel,
+                    nama_mapel:record.mapel.nama_mapel,
                     status_taftisan:record.status_taftisan
                 }
 
             })
 
 
+
             //2. Cari Mapel Utama (yang wajib taftis) pada kelas tersebut
             const mapelUtama = await Mapel.findAll({
-                where: { id_angkatan: daftarKelas[0].id_angkatan},});
+                where: { id_angkatan: daftarKelas.dataValues.id_angkatan},});
 
 
             const rawToJson =  mapelUtama.map((data) => data.dataValues)
@@ -578,10 +569,16 @@ export class NilaiMuridController {
             if (id_kelas) {
                 const daftarKelas = await Kelas.findAll(
                     {where: {id_kelas:id_kelas},
-                        include:{model:Murid}
+                        include: [{
+                            model: Murid,
+                            where: { isBoyong: false }, // Add this line to filter Murid records
+                            required: true // Optional based on your requirements
+                        }]
                     }
                 )
-                const daftarMuridDiKelas = daftarKelas[0].murids
+                // const daftarMuridDiKelas = daftarKelas[0].murids
+
+                const daftarMuridDiKelas = await Murid.findAll({ where: { id_kelas: id_kelas,isBoyong: false  } });
                 // const babi = await NilaiHafalan
                 const jsonData = daftarMuridDiKelas.map((murid) => murid.dataValues);
                 const fetchPromises = jsonData.map(murid =>
@@ -697,7 +694,7 @@ function categorizeMapels(dataAngkatan) {
     dataAngkatan.forEach(angkatan => {
         let isUtama = true;
 
-        angkatan.Mapels.forEach(mapel => {
+        angkatan.mapels.forEach(mapel => {
             if (mapel.nama_mapel === "Riyadloh") {
                 isUtama = false;
             }

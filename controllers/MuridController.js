@@ -224,15 +224,20 @@ export class MuridController {
                             include: [{model: Mapel, include: [{model: CabangIlmu}]}]
                         });
 
+
                         const murid = await Murid.findByPk(arek.id_murid, {
                             attributes: ['id_kelas', 'nama_murid', 'id_murid']
                         });
 
+
+
                         const kelas = await Kelas.findByPk(murid.id_kelas, {
                             attributes: ['id_angkatan', 'nama_kelas']
                         });
+                        // console.log(kelas.dataValues)
 
-                        const arrayNilai = nilaiMurid.map(bocah => ({
+                        const arrayNilai = nilaiMurid.map(bocah => (
+                            {
                             id_murid: murid.id_murid,
                             nama_murid: murid.nama_murid,
                             kelas: kelas.nama_kelas,
@@ -241,6 +246,7 @@ export class MuridController {
                             id_fan: bocah.id_fan,
                             fan: bocah.mapel.cabangilmu.nama_fan
                         }));
+
 
                         const hasil = arrayNilai.reduce((acc, item) => {
                             if (acc[item.id_fan]) {
@@ -259,6 +265,7 @@ export class MuridController {
                             hasil[key].isi_nilai = hasil[key].isi_nilai / hasil[key].count;
                         }
                         // console.log(Object.values(hasil)[0])
+                        // console.log(hasil)
 
                         return Object.values(hasil);
                     } catch (error) {
@@ -279,26 +286,20 @@ export class MuridController {
     static async getNilaiRapotMuridPerkelas(req, res) {
         try {
             const {id_kelas} = req.params;
-            const listKelas = await Kelas.findAll({
-                where: { id_kelas: id_kelas },
-                include: [{
-                    model: Murid,
-                    where: { isBoyong: false }, // Add this line to filter Murid records
-                    required: false // Optional based on your requirements
-                }]
-            });
 
-            const listbabi = listKelas.map(kelas => {
-                return kelas.murids.map(murid => {
-                    return {
-                        id_murid: murid.id_murid,
-                        nama: murid.nama_murid,
+            const muridDiKelas = await Murid.findAll({ where: { id_kelas: id_kelas,isBoyong: false  } });
+            const jsonData = muridDiKelas.map((murid) => murid.dataValues);
 
-                    }
-                })
+            const listnamaMurid = jsonData.map(murid => {
+                return {
+                    id_murid: murid.id_murid,
+                    nama: murid.nama_murid,
+
+                }
             })
 
-            const cece = await MuridController.getNilaiForAllMurids(listbabi[0])
+            const cece = await MuridController.getNilaiForAllMurids(listnamaMurid)
+
             res.status(200).json(cece);
 
         } catch (error) {

@@ -92,8 +92,8 @@ export class KehadiranController {
     }
     static async findOrCreateKehadiranByIdKelas(req, res) {
       try {
-        const idKelas = req.params.id_kelas;
-        const muridDiKelas = await Murid.findAll({ where: { id_kelas: idKelas,isBoyong: false  } });
+        const id_kelas = req.params.id_kelas;
+        const muridDiKelas = await Murid.findAll({ where: { id_kelas: id_kelas,isBoyong: false  } });
     
         if (!muridDiKelas || muridDiKelas.length === 0) {
           return res.status(404).send('Tidak ada murid yang ditemukan untuk kelas ini.');
