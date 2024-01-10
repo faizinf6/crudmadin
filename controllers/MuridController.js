@@ -236,10 +236,10 @@ export class MuridController {
                             id_murid: murid.id_murid,
                             nama_murid: murid.nama_murid,
                             kelas: kelas.nama_kelas,
-                            mapel: bocah.Mapel.nama_mapel,
+                            mapel: bocah.mapel.nama_mapel,
                             isi_nilai: bocah.isi_nilai,
                             id_fan: bocah.id_fan,
-                            fan: bocah.Mapel.CabangIlmu.nama_fan
+                            fan: bocah.mapel.cabangilmu.nama_fan
                         }));
 
                         const hasil = arrayNilai.reduce((acc, item) => {
@@ -289,7 +289,7 @@ export class MuridController {
             });
 
             const listbabi = listKelas.map(kelas => {
-                return kelas.Murids.map(murid => {
+                return kelas.murids.map(murid => {
                     return {
                         id_murid: murid.id_murid,
                         nama: murid.nama_murid,

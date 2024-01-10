@@ -52,7 +52,7 @@ export class KelasController {
             const { id } = req.params;
             const kelas = await Kelas.findByPk(id);
             if (kelas) {
-                res.status(200).json(kelas.Murids);
+                res.status(200).json(kelas.murids);
             } else {
                 res.status(404).json({ message: 'Kelas not found' });
             }

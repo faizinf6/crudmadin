@@ -211,7 +211,7 @@ export class NilaiMuridController {
                     where: { id_kelas: semua.id_kelas },
                     include: { model: Murid }
                 });
-                const daftarMuridDiKelas = daftarKelas[0].Murids;
+                const daftarMuridDiKelas = daftarKelas[0].murids;
 
                 // Get daftarMapel
                 const daftarMapel = await Mapel.findAll({
@@ -295,7 +295,7 @@ export class NilaiMuridController {
                 }
             )
             //Ambil nama-nama muridnya saja
-            const daftarMuridDiKelas = daftarKelas[0].Murids
+            const daftarMuridDiKelas = daftarKelas[0].murids
 
             //filter data raw sql ke json (diambil dataValuesnya saja)
             const jsonData = daftarMuridDiKelas.map((murid) => murid.dataValues);
@@ -315,7 +315,7 @@ export class NilaiMuridController {
             const finalData = jsonResults.map(record =>{
                 return {
                     id_murid:record.id_murid,
-                    nama_murid:record.Murid.nama_murid,
+                    nama_murid:record.murid.nama_murid,
                     id_mapel:record.id_mapel,
                     nama_mapel:record.Mapel.nama_mapel,
                     status_taftisan:record.status_taftisan
@@ -391,10 +391,10 @@ export class NilaiMuridController {
             const finalData = jsonResults.map(record =>{
                 return {
                     id_murid:record.id_murid,
-                    nama_murid:record.Murid.nama_murid,
-                    nama_kelas:record.Murid.Kela.nama_kelas,
+                    nama_murid:record.murid.nama_murid,
+                    nama_kelas:record.murid.kela.nama_kelas,
                     id_mapel:record.id_mapel,
-                    nama_mapel:record.Mapel.nama_mapel,
+                    nama_mapel:record.mapel.nama_mapel,
                     status_taftisan:record.status_taftisan
                 }
 
@@ -546,7 +546,7 @@ export class NilaiMuridController {
                     include:{model:Murid}
                 }
             )
-            const daftarMuridDiKelas = daftarKelas[0].Murids
+            const daftarMuridDiKelas = daftarKelas[0].murids
 
             for (const murid of daftarMuridDiKelas){
                 await NilaiHafalan.findOrCreate({
@@ -581,7 +581,7 @@ export class NilaiMuridController {
                         include:{model:Murid}
                     }
                 )
-                const daftarMuridDiKelas = daftarKelas[0].Murids
+                const daftarMuridDiKelas = daftarKelas[0].murids
                 // const babi = await NilaiHafalan
                 const jsonData = daftarMuridDiKelas.map((murid) => murid.dataValues);
                 const fetchPromises = jsonData.map(murid =>
