@@ -46,25 +46,25 @@ app.post('/logout', (req, res) => {
 
 // Data contoh murid
 // ini unutk arduino ..hapus tiddak masalah
-// const students = [
-//   { nama_murid: 'Andi', id_murid: "4269501635" },
-//   { nama_murid: 'Budi', id_murid: "4269216147" },
-//   { nama_murid: 'Citra', id_murid: "0274879331" },
-//   { nama_murid: 'Dukun', id_murid: "0227251715" }
-// ];
+const students = [
+  { nama_murid: 'Andi', id_murid: "4269501635" },
+  { nama_murid: 'Budi', id_murid: "4269216147" },
+  { nama_murid: 'Citra', id_murid: "0274879331" },
+  { nama_murid: 'Dukun', id_murid: "0227251715" }
+];
 
 // Route untuk mendapatkan murid berdasarkan ID
-// app.get('/santri/:id', (req, res) => {
-//   const id = (req.params.id);
-//   const student = students.find(s => s.id_murid === id);
-//
-//   console.log( ({ nama_murid: student.nama_murid, waktu_respon: new Date().toLocaleString() }))
-//   if (student) {
-//     res.json({ nama_murid: student.nama_murid, waktu_respon: new Date().toLocaleString() });
-//   } else {
-//     res.status(404).send('Murid tidak ditemukan');
-//   }
-// });
+app.get('/santri/:id', (req, res) => {
+  const id = (req.params.id);
+  const student = students.find(s => s.id_murid === id);
+
+  console.log( ({ nama_murid: student.nama_murid, waktu_respon: new Date().toLocaleString() }))
+  if (student) {
+    res.json({ nama_murid: student.nama_murid, waktu_respon: new Date().toLocaleString() });
+  } else {
+    res.status(404).send('Murid tidak ditemukan');
+  }
+});
 
 
 app.listen(PORT, () => {

@@ -12,6 +12,7 @@ router.get('/data', KelasController.getDataKelasTanpaMurid);
 router.get('/murid/all/:id_kelas', KelasController.getAllNamaMurid);
 // router.get('/murid/all/:id_kelas', KelasController.getKelasById);
 router.post('/', KelasController.createKelas);
+router.patch('/update', KelasController.updateKelas);
 router.post('/batch', KelasController.createManyKelas);
 
 router.get('/angkatan/all', AngkatanController.getAllAngkatan);

@@ -64,14 +64,13 @@ export class KelasController {
     // Update
     static async updateKelas(req, res) {
         try {
-            const { id } = req.params;
-            const { nama_kelas, id_angkatan } = req.body;
+            const { id_kelas, nama_kelas, id_angkatan } = req.body;
             const updated = await Kelas.update({ nama_kelas, id_angkatan }, {
-                where: { id_kelas: id }
+                where: { id_kelas: id_kelas }
             });
 
             if (updated) {
-                const updatedKelas = await Kelas.findByPk(id);
+                const updatedKelas = await Kelas.findByPk(id_kelas);
                 res.status(200).json(updatedKelas);
             } else {
                 res.status(404).json({ message: 'Kelas not found' });
