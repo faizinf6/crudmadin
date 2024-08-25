@@ -9,7 +9,7 @@ import adminRoutes from './routes/adminRoutes.js';
 const app = express();
 import dotenv from 'dotenv';
 dotenv.config();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 import session from 'express-session'
 import AdminController from "./controllers/AdminController.js";
 

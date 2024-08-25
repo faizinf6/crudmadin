@@ -211,7 +211,6 @@ CabangIlmu.hasMany(NilaiMapel, { foreignKey: 'id_fan' });
 CabangIlmu.hasMany(Mapel, { foreignKey: 'id_fan' });
 Mapel.belongsTo(CabangIlmu, { foreignKey: 'id_fan' });
 
-// Export models
 
 
 
@@ -228,4 +227,6 @@ async function syncModels() {
 }
 
 syncModels();
+// Export models
+
 export { Murid, Kelas, Angkatan, Mapel, NilaiMapel, CabangIlmu, Kehadiran,Admin,NilaiHafalan };
