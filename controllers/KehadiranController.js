@@ -100,16 +100,16 @@ export class KehadiranController {
         }
     
         let kehadiranMurid = [];
-    
+
         for (const murid of muridDiKelas) {
           const [kehadiran] = await Kehadiran.findOrCreate({
             where: { id_murid: murid.id_murid },
             defaults: { alpha: 0, izin: 0, sakit: 0 }
           });
-    
+            console.log("tes")
           kehadiranMurid.push({ 
             id_murid: murid.id_murid, 
-            nama_murid: murid.nama_murid, // Contoh, sesuaikan dengan atribut di model Murid Anda
+            nama_murid: murid.nama_murid,
             kehadiran: kehadiran.get({ plain: true }) 
           });
         }

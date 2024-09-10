@@ -4,7 +4,7 @@ import sequelize from '../config/Database.js';
 // Definisi entitas Murid
 const Murid = sequelize.define('murid', {
   id_murid: {
-    type: DataTypes.BIGINT.UNSIGNED,
+    type: DataTypes.STRING,
     primaryKey: true,
     allowNull: false
   },
@@ -18,8 +18,18 @@ const Murid = sequelize.define('murid', {
   },
   isBoyong: {
     type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue:false
+  },
+  rfid:{
+    type:DataTypes.STRING,
+    allowNull: false
+  },
+  no_ujian:{
+    type:DataTypes.STRING,
     allowNull: false
   }
+
 }, { freezeTableName: true, timestamps: false });
 
 // Definisi entitas Kelas
@@ -81,7 +91,7 @@ const NilaiMapel = sequelize.define('nilaimapel', {
     primaryKey: true
   },
   id_murid: {
-    type: DataTypes.BIGINT.UNSIGNED,
+    type: DataTypes.STRING,
     allowNull: false
   },
   id_mapel: {
@@ -95,7 +105,8 @@ const NilaiMapel = sequelize.define('nilaimapel', {
   },
   isi_nilai: {
     type: DataTypes.FLOAT.UNSIGNED,
-    allowNull: false
+    allowNull: false,
+    defaultValue: 0
   }
 }, { freezeTableName: true, timestamps: false });
 
@@ -120,40 +131,52 @@ const Kehadiran = sequelize.define('kehadiran', {
     autoIncrement: true
   },
   id_murid: {
-    type: DataTypes.BIGINT.UNSIGNED,
+    type: DataTypes.STRING,
     allowNull: false
   },
   alpha: {
     type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false
+
   },
   izin: {
     type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false
+
   },
   sakit: {
     type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false
+
   }
 }, { freezeTableName: true, timestamps: false });
 const NilaiHafalan = sequelize.define('nilaihafalan', {
 
   id_murid: {
-    type: DataTypes.BIGINT.UNSIGNED,
+    type: DataTypes.STRING,
     primaryKey:true,
     allowNull: false
   },
   pencapaian: {
+    type: DataTypes.BIGINT.UNSIGNED,
+    allowNull: false,
+    defaultValue:0
+  },
+
+  nilai_pencapaian: {
     type: DataTypes.FLOAT.UNSIGNED,
-    allowNull: false
+    allowNull: false,
+    defaultValue:0.0
   },
   kelancaran: {
     type: DataTypes.FLOAT.UNSIGNED,
-    allowNull: false
+    allowNull: false,
+    defaultValue:0.0
   },
   artikulasi: {
     type: DataTypes.FLOAT.UNSIGNED,
-    allowNull: false
+    allowNull: false,
+    defaultValue:0.0
   }
 }, { freezeTableName: true, timestamps: false });
 
@@ -161,14 +184,14 @@ const Admin = sequelize.define('admin', {
   id_admin: {
     type: DataTypes.INTEGER.UNSIGNED,
     primaryKey: true,
-    allowNull: false
+    autoIncrement:true
   },
   nama_admin: {
     type: DataTypes.STRING,
     allowNull: false
   },
   no_hp: {
-    type: DataTypes.BIGINT.UNSIGNED,
+    type: DataTypes.STRING,
     allowNull: false,
     unique: true
   },

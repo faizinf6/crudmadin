@@ -238,6 +238,7 @@ export class NilaiMuridController {
                         where:{id_murid:murid.id_murid},
                         defaults:{
                             pencapaian:0,
+                            nilai_pencapaian:0,
                             kelancaran:0,
                             artikulasi:0
                         }
@@ -306,12 +307,15 @@ export class NilaiMuridController {
                 return {
                     id_murid:record.id_murid,
                     nama_murid:record.murid.nama_murid,
+                    no_ujian:record.murid.no_ujian,
                     id_mapel:record.id_mapel,
                     nama_mapel:record.mapel.nama_mapel,
                     status_taftisan:record.status_taftisan
                 }
 
             })
+
+
 
 
 
@@ -341,6 +345,7 @@ export class NilaiMuridController {
                 return {
                     id_murid: id_murid,
                     nama_murid: groupedByMurid[id_murid][0].nama_murid,
+                    no_ujian: groupedByMurid[id_murid][0].no_ujian,
                     data_taftisan: groupedByMurid[id_murid]
                 };
             });
@@ -360,7 +365,6 @@ export class NilaiMuridController {
 
 
 
-            // console.log(kelasss)
             //Ambil nama-nama muridnya saja
             const daftarMurid = await Murid.findAll({
                 where:{isBoyong:false},
@@ -370,6 +374,7 @@ export class NilaiMuridController {
             const filterDataMurid =daftarMurid.map((murid) =>
                 murid.dataValues
             );
+
             const fetchPromises = filterDataMurid.map(murid =>
                 NilaiMapel.findAll({
                     where: { id_murid: murid.id_murid },
@@ -379,17 +384,25 @@ export class NilaiMuridController {
             const results = await Promise.all(fetchPromises);
             const flattenedResults = results.flat();
             const jsonResults = flattenedResults.map(result => result.toJSON());
+            console.log("kelasss celeng")
+
             const finalData = jsonResults.map(record =>{
+
+
                 return {
                     id_murid:record.id_murid,
+                    no_ujian:record.murid.no_ujian,
+                    rfid:record.murid.rfid,
                     nama_murid:record.murid.nama_murid,
                     nama_kelas:record.murid.kela.nama_kelas,
+                    id_kelas:record.murid.kela.id_kelas,
                     id_mapel:record.id_mapel,
                     nama_mapel:record.mapel.nama_mapel,
                     status_taftisan:record.status_taftisan
                 }
 
             })
+            // console.log(finalData)
 
             const  dataAngkatan = await Angkatan.findAll({
                 include:[{model:Mapel}]
@@ -406,6 +419,9 @@ export class NilaiMuridController {
                 accumulator[current.id_murid].push(current);
                 return accumulator;
             }, {});
+
+
+            // console.log(groupedByMurid)
 
 
             //3. jadikan recod baru ya biar FE enak kocak
@@ -425,11 +441,15 @@ export class NilaiMuridController {
                         status_taftisan: taftisan.status_taftisan
                     };
                 });
+                // console.log(taftisanData[0].id_kelas)
 
                 return {
                     id_murid: id_murid,
+                    no_ujian: taftisanData[0].no_ujian,
                     nama_murid: taftisanData[0].nama_murid,
+                    rfid: taftisanData[0].rfid,
                     nama_kelas: groupedByMurid[id_murid][0].nama_kelas,
+                    id_kelas:taftisanData[0].id_kelas,
                     data_taftisan: taftisanData,
                     sudah_lengkap: sudahLengkap,
                     yang_kurang: yangKurang
@@ -489,7 +509,7 @@ export class NilaiMuridController {
 
     static async createNilaiHafalan  (req, res) {
         try {
-            const { id_murid, pencapaian, kelancaran, kejelasan } = req.body;
+            const { id_murid, pencapaian,nilai_pencapaian, kelancaran, kejelasan } = req.body;
 
             // Create single record
             const nilaiHafalan = await NilaiHafalan.create({
@@ -544,6 +564,7 @@ export class NilaiMuridController {
                     where:{id_murid:murid.id_murid},
                     defaults:{
                         pencapaian:0,
+                        nilai_pencapaian:0,
                         kelancaran:0,
                         artikulasi:0
                     }
@@ -596,6 +617,7 @@ export class NilaiMuridController {
                     return {
                         id_murid: hafalan.id_murid,
                         pencapaian: hafalan.pencapaian,
+                        nilai_pencapaian: hafalan.nilai_pencapaian,
                         kelancaran: hafalan.kelancaran,
                         artikulasi: hafalan.artikulasi
                     };
@@ -619,9 +641,10 @@ export class NilaiMuridController {
 
     static async updateNilaiHafalan (req, res) {
         try {
-            const { id_murid, pencapaian, kelancaran, artikulasi } = req.body;
+            const { id_murid, pencapaian,nilai_pencapaian, kelancaran, artikulasi } = req.body;
 
-            console.log(req.body)
+            console.log("celeng")
+            console.log(nilai_pencapaian)
             const nilaiHafalan = await NilaiHafalan.findOne(
                 {
                     where:{id_murid:id_murid}
@@ -629,7 +652,7 @@ export class NilaiMuridController {
 
             );
             if (!nilaiHafalan) return res.status(404).json({ message: 'Nilai hafalan not found' });
-            await nilaiHafalan.update({ pencapaian, kelancaran, artikulasi });
+            await nilaiHafalan.update({ pencapaian,nilai_pencapaian, kelancaran, artikulasi });
             return res.json({ message: 'Nilai hafalan updated successfully!', data: nilaiHafalan})
 
 

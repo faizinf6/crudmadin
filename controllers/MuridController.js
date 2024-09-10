@@ -4,8 +4,8 @@ export class MuridController {
     // Create
     static async createOneMurid(req, res) {
         try {
-            const {id_murid, nama_murid, id_kelas, isBoyong} = req.body;
-            const murid = await Murid.create({id_murid, nama_murid, id_kelas, isBoyong});
+            const {id_murid, nama_murid, id_kelas, rfid,no_ujian} = req.body;
+            const murid = await Murid.create({id_murid, nama_murid, id_kelas, rfid,no_ujian});
             const dataKelas = await Kelas.findOne({where:{id_kelas:id_kelas}})
             const daftarMapel = await Mapel.findAll({
                 where: { id_angkatan: dataKelas.id_angkatan }
@@ -27,6 +27,7 @@ export class MuridController {
                 where:{id_murid:id_murid},
                 defaults:{
                     pencapaian:0,
+                    nilai_pencapaian:0,
                     kelancaran:0,
                     artikulasi:0
                 }
@@ -44,8 +45,8 @@ export class MuridController {
             const muridArray = req.body; // Array of murid objects
 
             for (const muridData of muridArray) {
-                const { id_murid, nama_murid, id_kelas, isBoyong } = muridData;
-                await Murid.create({ id_murid, nama_murid, id_kelas, isBoyong });
+                const { id_murid, nama_murid, id_kelas, rfid,no_ujian } = muridData;
+                await Murid.create({ id_murid, nama_murid, id_kelas, rfid,no_ujian });
                 const dataKelas = await Kelas.findOne({ where: { id_kelas: id_kelas } });
                 const daftarMapel = await Mapel.findAll({
                     where: { id_angkatan: dataKelas.id_angkatan }
@@ -69,6 +70,7 @@ export class MuridController {
                     where: { id_murid: id_murid },
                     defaults: {
                         pencapaian: 0,
+                        nilai_pencapaian:0,
                         kelancaran: 0,
                         artikulasi: 0
                     }
